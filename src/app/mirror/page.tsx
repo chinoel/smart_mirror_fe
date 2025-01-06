@@ -9,7 +9,7 @@ export default function Admin() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({video:true});
                 if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
+                    videoRef.current.srcObject = null;
                 }
             } catch (error) {
                 console.error(error);
