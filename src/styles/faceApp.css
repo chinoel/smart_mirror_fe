@@ -1,0 +1,9 @@
+.appvide {
+    display: flex;
+    align-items: center;
+}
+
+.appcanvase {
+    position: absolute;
+    top: 100px;
+}
