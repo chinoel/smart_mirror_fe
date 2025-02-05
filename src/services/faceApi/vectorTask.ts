@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import * as faceapi from 'face-api.js';
 import '@/styles/faceApp.css';
 
-export const faceApiDetect = async (videoRef: RefObject<HTMLVideoElement>, canvasRef: RefObject<HTMLCanvasElement>) => {
+export const vectorTask = async (videoRef: RefObject<HTMLVideoElement>, canvasRef: RefObject<HTMLCanvasElement>) => {
     const initCamera = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -32,32 +32,37 @@ export const faceApiDetect = async (videoRef: RefObject<HTMLVideoElement>, canva
     const faceMyDetect = async () => {
         try {
             setInterval(async () => {
-                const detections = await faceapi.detectAllFaces(
+                if (!videoRef.current) return;
+
+                const detections = await faceapi.detectSingleFace(
                     videoRef.current!,
                     new faceapi.TinyFaceDetectorOptions()
-                ).withFaceLandmarks().withFaceExpressions()
+                ).withFaceLandmarks().withFaceDescriptor();
 
                 const canvas = canvasRef.current;
                 if (canvas) {
                     const displaySize = {
                         width: videoRef.current!.width,
                         height: videoRef.current!.height
-                    }
+                    };
                     faceapi.matchDimensions(canvas, displaySize);
 
-                    const resizedDetections = faceapi.resizeResults(
-                        detections, displaySize
-                    );
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-                    canvas.getContext('2d')?.clearRect(0, 0,
-                        canvas.width, canvas.height)
-                    faceapi.draw.drawDetections(canvas, resizedDetections);
-                    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-                    faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+                    canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+                    if (resizedDetections) {
+                        faceapi.draw.drawDetections(canvas, resizedDetections);
+                        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+                    }
 
-                    console.log(resizedDetections)
+                    if (detections?.descriptor) {
+                        const faceDescriptor = Array.from(detections.descriptor);
+                        console.log("faceDescriptor", faceDescriptor);
+
+                        // Back End Call
+                    }
                 }
-            }, 1000) // time
+            }, 1000)
         } catch (err) {
             console.error(err)
         }

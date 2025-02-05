@@ -8,6 +8,7 @@ export default function Mirror() {
     const videoRef = useRef<HTMLVideoElement>(null!);
     const canvasRef = useRef<HTMLCanvasElement>(null!);
 
+    // Initialize the camera (카메라 초기화)
     const initCamera = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -19,6 +20,7 @@ export default function Mirror() {
         }
     }
 
+    // Load the models (모델 로드)
     const loadModels = async () => {
         try {
             await Promise.all([
@@ -33,6 +35,7 @@ export default function Mirror() {
         }
     }
 
+    // Detect the face (얼굴 감지)
     const faceMyDetect = async () => {
         try {
             setInterval(async () => {
@@ -70,11 +73,13 @@ export default function Mirror() {
         }
     }
 
+    // Run the camera and load the models (카메라 실행 및 모델 로드)
     useEffect(() => {
         initCamera();
         loadModels();
     }, [])
 
+    
     return (
         <div className="myapp">
             <h1>Face Detection</h1>
