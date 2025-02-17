@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Head from "next/head"; // ✅ `next/head` 사용
+import Head from "next/head";
 import styles from "./Home.module.css";
 
 export default function Home() {
-  const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleTimeString()
+  );
 
   // 공지사항 목록 (나중에 API 연동 가능)
   const [notifications] = useState<string[]>([
@@ -20,7 +22,7 @@ export default function Home() {
   );
 
   // 애니메이션 상태 (true: 표시됨, false: 사라짐)
-  const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
   // ✅ 1초마다 시계 업데이트
   useEffect(() => {
@@ -35,13 +37,13 @@ export default function Home() {
     if (notifications.length > 0) {
       let index = 0;
       const interval = setInterval(() => {
-        setIsVisible(false);
+        setIsVisible(false); // 먼저 공지 사라짐
         setTimeout(() => {
           index = (index + 1) % notifications.length;
           setCurrentNotification(notifications[index]);
-          setIsVisible(true);
-        }, 500);
-      }, 10000);
+          setIsVisible(true); // 새로운 공지 등장
+        }, 500); // 사라지는 애니메이션 후 변경
+      }, 10000); // 10초마다 실행 (5초 표시 + 5초 대기)
 
       return () => clearInterval(interval);
     }
@@ -70,18 +72,12 @@ export default function Home() {
           </div>
         </header>
 
-        {/* 중단: 학교 공지 (중단 영역의 최상단에 배치) */}
+        {/* 공지사항 (중단 최상단, 상단과 중단 경계 부분) */}
         <main className={styles.middle}>
-          <div className={styles.notificationWrapper}>
-            {currentNotification && (
-              <div
-                className={`${styles.notification} ${
-                  isVisible ? styles.show : styles.hide
-                }`}
-              >
-                <p>{currentNotification}</p>
-              </div>
-            )}
+          <div className={styles.notificationContainer}>
+            <div className={`${styles.notification} ${isVisible ? styles.show : styles.hide}`}>
+              <p>{currentNotification}</p>
+            </div>
           </div>
         </main>
 
