@@ -1,0 +1,72 @@
+/* 로그인 페이지 전체 스타일 */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  color: white;
+}
+
+/* 로그인 타이틀 */
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* 로그인 폼 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+}
+
+/* 입력 필드 */
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid white;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  font-size: 1rem;
+}
+
+/* 로그인 버튼 */
+.button {
+  padding: 10px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: darkblue;
+}
+
+/* 팝업 메시지 */
+.popup {
+  position: absolute;
+  top: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  text-align: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* 로그인 성공 */
+.success {
+  color: lightgreen;
+}
+
+/* 로그인 실패 */
+.error {
+  color: red;
+}

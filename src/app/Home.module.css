@@ -1,0 +1,88 @@
+/* 전체 컨테이너 */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  color: white;
+}
+
+/* 상단 (SMARTMIR & 실시간 시계) */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px;
+  border-bottom: 1px solid white;
+}
+
+.headerCenter {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.headerRight {
+  font-size: 1.5rem;
+}
+
+/* 공지사항 */
+.middle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.notificationWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+}
+
+.notification {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+/* 공지 애니메이션 */
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hide {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* 하단 (식단표) */
+.footer {
+  width: 100%;
+  padding: 20px;
+  border-top: 1px solid white;
+  text-align: center;
+}
+
+.footer h3 {
+  font-size: 1.5rem;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer li {
+  margin: 5px 0;
+}

@@ -1,101 +1,100 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Head from "next/head"; // ✅ `next/head` 사용
+import styles from "./Home.module.css";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  // 공지사항 목록 (나중에 API 연동 가능)
+  const [notifications] = useState<string[]>([
+    "[공지] 오늘은 학교 행사일입니다.",
+    "[공지] 내일 급식 변경 안내",
+    "[공지] 3월 1일 공휴일 휴무"
+  ]);
+
+  // 현재 표시되는 공지
+  const [currentNotification, setCurrentNotification] = useState<string | null>(
+    notifications.length > 0 ? notifications[0] : null
+  );
+
+  // 애니메이션 상태 (true: 표시됨, false: 사라짐)
+  const [isVisible, setIsVisible] = useState<boolean>(true);
+
+  // ✅ 1초마다 시계 업데이트
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // ✅ 공지 알림 변경 로직 (10초마다 새 공지 표시)
+  useEffect(() => {
+    if (notifications.length > 0) {
+      let index = 0;
+      const interval = setInterval(() => {
+        setIsVisible(false);
+        setTimeout(() => {
+          index = (index + 1) % notifications.length;
+          setCurrentNotification(notifications[index]);
+          setIsVisible(true);
+        }, 500);
+      }, 10000);
+
+      return () => clearInterval(interval);
+    }
+  }, [notifications]);
+
+  // ✅ 동적으로 문서 제목 변경
+  useEffect(() => {
+    document.title = "스마트미러 - 메인";
+  }, []);
+
+  return (
+    <>
+      {/* ✅ `next/head` 사용하여 탭 제목 설정 */}
+      <Head>
+        <title>스마트미러 - 메인</title>
+      </Head>
+
+      <div className={styles.container}>
+        {/* 상단: 가운데 SMARTMIR, 오른쪽 실시간 시계 */}
+        <header className={styles.header}>
+          <div className={styles.headerCenter}>
+            <span>SMARTMIR</span>
+          </div>
+          <div className={styles.headerRight}>
+            <span>{currentTime}</span>
+          </div>
+        </header>
+
+        {/* 중단: 학교 공지 (중단 영역의 최상단에 배치) */}
+        <main className={styles.middle}>
+          <div className={styles.notificationWrapper}>
+            {currentNotification && (
+              <div
+                className={`${styles.notification} ${
+                  isVisible ? styles.show : styles.hide
+                }`}
+              >
+                <p>{currentNotification}</p>
+              </div>
+            )}
+          </div>
+        </main>
+
+        {/* 하단: 식단표 */}
+        <footer className={styles.footer}>
+          <h3>오늘의 식단</h3>
+          <ul>
+            <li>아침: 떡국</li>
+            <li>점심: 김치찌개</li>
+            <li>저녁: 치킨</li>
+          </ul>
+        </footer>
+      </div>
+    </>
   );
 }

@@ -1,0 +1,101 @@
+/* 관리자 페이지 전체 스타일 */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  color: white;
+  padding: 20px;
+}
+
+/* 관리자 타이틀 */
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* 섹션 스타일 */
+.section {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
+/* 섹션 타이틀 */
+.sectionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+/* 입력 필드 그룹 */
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* 텍스트 입력 */
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid white;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  font-size: 1rem;
+}
+
+/* 텍스트 영역 (공지사항 입력) */
+.textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: 1px solid white;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  font-size: 1rem;
+  resize: none;
+}
+
+/* 저장 버튼 */
+.button {
+  padding: 10px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: darkblue;
+}
+
+/* 저장 팝업 메시지 */
+.popup {
+  position: fixed;
+  top: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  text-align: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* 저장 팝업 애니메이션 */
+.popup {
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}

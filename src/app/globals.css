@@ -5,8 +5,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  font-size: 16px;
 }
 
+/* 다크 모드 설정 */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -18,4 +20,11 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 27인치 모니터에 해당하는 해상도 범위 (예: 최소 너비 1920px 이상) */
+@media (min-width: 1920px) {
+  :root {
+    font-size: 18px; /* 기본 폰트 사이즈를 증가 */
+  }
 }
