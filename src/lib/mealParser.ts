@@ -9,12 +9,6 @@ export async function fetchMealData(): Promise<any> {
         const response = await axios.get(url + meta);
         const html = response.data;
         const $ = cheerio.load(html);
-        const table = $('table.board-table.horizon1').html();
-
-        // Remove excessive whitespace and newlines
-        const cleanedTable = table?.replace(/\s+/g, ' ').trim();
-
-        // Get the first post link
         const firstPostLink = $('table.board-table.horizon1 tbody tr').first().find('a').attr('href');
 
         const postResponse = await axios.get(url + firstPostLink);
