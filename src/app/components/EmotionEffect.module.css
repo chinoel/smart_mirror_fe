@@ -1,90 +1,97 @@
+/* ✅ 전체 컨테이너 */
 .container {
-    text-align: center;
-    padding: 20px;
-    color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: black;
+  color: white;
+}
+
+/* ✅ 공통 애니메이션 효과 */
+.effect {
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  transition: all 0.5s ease-in-out;
+  opacity: 1;
+  animation-duration: 3s;
+  animation-timing-function: ease-in-out;
+}
+
+/* ✅ 감정별 애니메이션 효과 */
+.기쁨 {
+  background-color: yellow;
+  color: black;
+  animation: bounce 1.5s infinite;
+}
+
+.슬픔 {
+  background-color: blue;
+  color: white;
+  animation: fadeInOut 3s infinite;
+}
+
+.화남 {
+  background-color: red;
+  color: white;
+  animation: shake 0.5s infinite;
+}
+
+.짜증 {
+  background-color: orange;
+  color: black;
+  animation: shakeSlow 1.5s infinite;
+}
+
+.아무생각없음 {
+  background-color: gray;
+  color: white;
+  animation: fadeInOut 4s infinite;
+}
+
+/* ✅ 애니메이션 키프레임 */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
   }
-  
-  .effect {
-    margin-top: 20px;
-    padding: 15px 30px;
-    border-radius: 10px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    animation-duration: 1s;
-    animation-fill-mode: both;
+  50% {
+    transform: translateY(-10px);
   }
-  
-  /* 감정별 애니메이션 효과 */
-  .기쁨 {
-    background-color: yellow;
-    color: black;
-    animation: bounce 1s infinite alternate;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.3;
   }
-  
-  @keyframes bounce {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(-10px);
-    }
+  50% {
+    opacity: 1;
   }
-  
-  .슬픔 {
-    background-color: blue;
-    animation: fadeIn 1s, dropTears 3s infinite alternate;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
   }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  25% {
+    transform: translateX(-5px);
   }
-  
-  @keyframes dropTears {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(10px);
-    }
+  50% {
+    transform: translateX(5px);
   }
-  
-  .화남 {
-    background-color: red;
-    animation: shake 0.5s infinite;
+  75% {
+    transform: translateX(-5px);
   }
-  
-  @keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(5px); }
+}
+
+@keyframes shakeSlow {
+  0%, 100% {
+    transform: translateX(0);
   }
-  
-  .짜증 {
-    background-color: orange;
-    animation: pulse 1.5s infinite;
+  50% {
+    transform: translateX(-8px);
   }
-  
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-  
-  .아무생각없음 {
-    background-color: gray;
-    animation: fadeInOut 2s infinite;
-  }
-  
-  @keyframes fadeInOut {
-    0% { opacity: 0.3; }
-    50% { opacity: 1; }
-    100% { opacity: 0.3; }
-  }
-  
+}

@@ -1,28 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import styles from "./EmotionEffect.module.css"; // 스타일 파일
+import styles from "./EmotionEffect.module.css";
 
 export default function EmotionEffect() {
-  // 감정 상태
   const [emotion, setEmotion] = useState<string>("기쁨");
-  const [effectVisible, setEffectVisible] = useState<boolean>(false);
-  const [duration, setDuration] = useState<number>(3); // 기본 지속 시간 3초
+  const [duration, setDuration] = useState<number>(3);
+  const [effectVisible, setEffectVisible] = useState<boolean>(true);
 
-  // 애니메이션 지속 시간 조절
   useEffect(() => {
-    if (effectVisible) {
-      const timer = setTimeout(() => setEffectVisible(false), duration * 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [effectVisible, duration]);
+    const timer = setTimeout(() => setEffectVisible(false), duration * 1000);
+    return () => clearTimeout(timer);
+  }, [emotion, duration]); // `emotion` 상태 변경 시 다시 실행됨
 
   return (
     <div className={styles.container}>
       <h2>감정 이펙트 테스트</h2>
 
       {/* 감정 선택 */}
-      <label>감정 선택: </label>
+      <label>감정 선택:</label>
       <select
         value={emotion}
         onChange={(e) => {
@@ -44,7 +40,7 @@ export default function EmotionEffect() {
         min="1"
         max="10"
         value={duration}
-        onChange={(e) => setDuration(parseInt(e.target.value))}
+        onChange={(e) => setDuration(Number(e.target.value))}
       />
 
       {/* 애니메이션 효과 표시 */}

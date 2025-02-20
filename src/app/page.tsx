@@ -9,16 +9,14 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState<string | null>(null);
 
   // ✅ 공지사항 목록 (나중에 API 연동 가능)
-  const [notifications] = useState<string[]>([
+  const notifications = [
     "[공지] 오늘은 학교 행사일입니다.",
     "[공지] 내일 급식 변경 안내",
-    "[공지] 3월 1일 공휴일 휴무"
-  ]);
+    "[공지] 3월 1일 공휴일 휴무",
+  ];
 
   // ✅ 현재 표시되는 공지 & 애니메이션 상태
-  const [currentNotification, setCurrentNotification] = useState<string | null>(
-    notifications.length > 0 ? notifications[0] : null
-  );
+  const [currentNotification, setCurrentNotification] = useState<string>(notifications[0]);
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   // ✅ 1초마다 시계 업데이트 (클라이언트에서만 실행)
@@ -34,20 +32,18 @@ export default function Home() {
 
   // ✅ 공지 알림 변경 로직 (10초마다 새 공지 표시)
   useEffect(() => {
-    if (notifications.length > 0) {
-      let index = 0;
-      const interval = setInterval(() => {
-        setIsVisible(false); // 먼저 공지 사라짐
-        setTimeout(() => {
-          index = (index + 1) % notifications.length;
-          setCurrentNotification(notifications[index]);
-          setIsVisible(true); // 새로운 공지 등장
-        }, 500); // 공지 사라진 후 변경
-      }, 10000); // 10초마다 실행 (5초 표시 + 5초 대기)
+    let index = 0;
+    const interval = setInterval(() => {
+      setIsVisible(false); // 먼저 공지 사라짐
+      setTimeout(() => {
+        index = (index + 1) % notifications.length;
+        setCurrentNotification(notifications[index]);
+        setIsVisible(true); // 새로운 공지 등장
+      }, 500); // 공지 사라진 후 변경
+    }, 10000); // 10초마다 실행 (5초 표시 + 5초 대기)
 
-      return () => clearInterval(interval);
-    }
-  }, [notifications]);
+    return () => clearInterval(interval);
+  }, []);
 
   // ✅ 동적으로 문서 제목 변경
   useEffect(() => {

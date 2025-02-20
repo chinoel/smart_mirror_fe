@@ -1,85 +1,95 @@
 /* 전체 화면 중앙 정렬 */
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: black;
-    color: white;
-  }
-  
-  /* 감정 상태 박스 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
+  color: white;
+}
+
+/* 감정 상태 박스 */
 .emotionBox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 380px; /* ✅ 너비 증가 */
-    height: 150px; /* ✅ 높이 증가 */
-    font-size: 3rem; /* ✅ 텍스트 크기 유지 */
-    font-weight: bold;
-    text-align: center;
-    border-radius: 15px;
-    line-height: 1.3; /* ✅ 줄 간격 증가 */
-    padding: 10px;
-    transition: all 0.3s ease-in-out;
-    word-break: keep-all; /* ✅ 단어가 줄 바꿈되지 않도록 유지 */
-  }
-  
-  /* 기본 애니메이션 */
-  @keyframes popEffect {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-  
-  /* 흔들리는 애니메이션 */
-  @keyframes shakeEffect {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-  }
-  
-  /* 감정별 스타일 및 애니메이션 효과 */
-  .happy {
-    background-color: yellow;
-    color: black;
-    animation: popEffect 1s infinite ease-in-out;
-  }
-  
-  .sad {
-    background-color: blue;
-    color: white;
-    animation: popEffect 2s infinite ease-in-out;
-  }
-  
-  .angry {
-    background-color: red;
-    color: white;
-    animation: shakeEffect 0.5s infinite ease-in-out;
-  }
-  
-  .annoyed {
-    background-color: purple;
-    color: white;
-    animation: shakeEffect 0.8s infinite ease-in-out;
-  }
-  
-  .neutral {
-    background-color: gray;
-    color: white;
-  }
-  
-  /* 감정 선택 드롭다운 */
-  .selectContainer {
-    margin-top: 20px;
-    font-size: 1.2rem;
-  }
-  
-  .customSelect {
-    padding: 8px;
-    font-size: 1.2rem;
-    border-radius: 5px;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 380px; /* ✅ 너비 증가 */
+  height: 150px; /* ✅ 높이 증가 */
+  font-size: 3rem; /* ✅ 텍스트 크기 유지 */
+  font-weight: bold;
+  text-align: center;
+  border-radius: 15px;
+  line-height: 1.3; /* ✅ 줄 간격 증가 */
+  padding: 10px;
+  transition: all 0.3s ease-in-out;
+  word-break: keep-all; /* ✅ 단어가 줄 바꿈되지 않도록 유지 */
+}
+
+/* 기본 애니메이션 */
+@keyframes popEffect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* 흔들리는 애니메이션 */
+@keyframes shakeEffect {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* 감정별 스타일 및 애니메이션 효과 */
+.happy {
+  background-color: yellow;
+  color: black;
+  animation: popEffect 1s infinite ease-in-out;
+}
+
+.sad {
+  background-color: blue;
+  color: white;
+  animation: popEffect 2s infinite ease-in-out;
+}
+
+.angry {
+  background-color: red;
+  color: white;
+  animation: shakeEffect 0.5s infinite ease-in-out;
+}
+
+.annoyed {
+  background-color: purple;
+  color: white;
+  animation: shakeEffect 0.8s infinite ease-in-out;
+}
+
+.neutral {
+  background-color: gray;
+  color: white;
+}
+
+/* 감정 선택 드롭다운 */
+.selectContainer {
+  margin-top: 20px;
+  font-size: 1.2rem;
+}
+
+/* ✅ 감정 선택 드롭다운 (글씨 검은색으로 변경) */
+.customSelect {
+  padding: 8px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  background-color: white;  /* ✅ 드롭다운 배경 밝게 */
+  color: black; /* ✅ 글씨 검은색 */
+  border: none;
+  cursor: pointer;
+}
+
+/* ✅ 드롭다운 선택 시 효과 */
+.customSelect:focus {
+  outline: none;
+  background-color: #f0f0f0; /* 선택 시 더 밝은 색 */
+}

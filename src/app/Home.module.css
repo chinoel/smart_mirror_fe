@@ -1,4 +1,4 @@
-/* 전체 컨테이너 */
+/* ✅ 전체 컨테이너 */
 .container {
   min-height: 100vh;
   display: flex;
@@ -9,8 +9,7 @@
   color: white;
 }
 
-/* 상단 (SMARTMIR & 실시간 시계) */
-
+/* ✅ 상단 (SMARTMIR & 실시간 시계) */
 .header {
   display: flex;
   justify-content: space-between;
@@ -30,7 +29,7 @@
   font-size: 1.5rem;
 }
 
-/* 공지사항 (중단 영역 상단에 위치) */
+/* ✅ 공지사항 (중단 영역 상단에 위치) */
 .middle {
   flex: 1;
   display: flex;
@@ -41,46 +40,47 @@
   position: relative;
 }
 
-/* 공지 알림 위치 및 크기 */
+/* ✅ 공지 알림 위치 및 크기 */
 .notificationWrapper {
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
+  max-width: 80%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80%;
 }
 
-/* 공지 알림 스타일 */
+/* ✅ 공지 알림 스타일 */
 .notification {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 1.2rem;
   text-align: center;
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
   opacity: 0;
   pointer-events: none;
+  max-width: 600px; /* 반응형 크기 조정 */
+  word-wrap: break-word;
 }
 
-/* 알림이 나타날 때 (위에서 아래로) */
+/* ✅ 알림 애니메이션 효과 (위에서 내려오기) */
 .show {
   opacity: 1;
-  transform: translateY(50px);
+  transform: translateY(20px);
   pointer-events: auto;
 }
 
-/* 알림이 사라질 때 (아래에서 위로) */
+/* ✅ 알림이 사라질 때 (위로 올라가기) */
 .hide {
   opacity: 0;
-  transform: translateY(-50px);
+  transform: translateY(-20px);
   pointer-events: none;
 }
 
-/* 하단 (식단표) */
+/* ✅ 하단 (식단표) */
 .footer {
   width: 100%;
   padding: 20px;
