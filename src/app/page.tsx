@@ -5,30 +5,30 @@ import Head from "next/head";
 import styles from "./Home.module.css";
 
 export default function Home() {
-  const [currentTime, setCurrentTime] = useState<string>(
-    new Date().toLocaleTimeString()
-  );
+  // ✅ 시계 상태 (초기값: null → Hydration 오류 방지)
+  const [currentTime, setCurrentTime] = useState<string | null>(null);
 
-  // 공지사항 목록 (나중에 API 연동 가능)
+  // ✅ 공지사항 목록 (나중에 API 연동 가능)
   const [notifications] = useState<string[]>([
     "[공지] 오늘은 학교 행사일입니다.",
     "[공지] 내일 급식 변경 안내",
     "[공지] 3월 1일 공휴일 휴무"
   ]);
 
-  // 현재 표시되는 공지
+  // ✅ 현재 표시되는 공지 & 애니메이션 상태
   const [currentNotification, setCurrentNotification] = useState<string | null>(
     notifications.length > 0 ? notifications[0] : null
   );
-
-  // 애니메이션 상태 (true: 표시됨, false: 사라짐)
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  // ✅ 1초마다 시계 업데이트
+  // ✅ 1초마다 시계 업데이트 (클라이언트에서만 실행)
   useEffect(() => {
+    setCurrentTime(new Date().toLocaleTimeString()); // 🚀 클라이언트에서만 초기 시간 설정
+
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
     }, 1000);
+
     return () => clearInterval(timer);
   }, []);
 
@@ -42,7 +42,7 @@ export default function Home() {
           index = (index + 1) % notifications.length;
           setCurrentNotification(notifications[index]);
           setIsVisible(true); // 새로운 공지 등장
-        }, 500); // 사라지는 애니메이션 후 변경
+        }, 500); // 공지 사라진 후 변경
       }, 10000); // 10초마다 실행 (5초 표시 + 5초 대기)
 
       return () => clearInterval(interval);
@@ -62,17 +62,18 @@ export default function Home() {
       </Head>
 
       <div className={styles.container}>
-        {/* 상단: 가운데 SMARTMIR, 오른쪽 실시간 시계 */}
+        {/* ✅ 상단: 가운데 SMARTMIR, 오른쪽 실시간 시계 */}
         <header className={styles.header}>
           <div className={styles.headerCenter}>
             <span>SMARTMIR</span>
           </div>
           <div className={styles.headerRight}>
-            <span>{currentTime}</span>
+            {/* 🚀 `null` 초기값 설정 → Hydration 오류 방지 */}
+            {currentTime ? <span>{currentTime}</span> : <span>로딩 중...</span>}
           </div>
         </header>
 
-        {/* 공지사항 (중단 최상단, 상단과 중단 경계 부분) */}
+        {/* ✅ 공지사항 (중단 최상단, 상단과 중단 경계 부분) */}
         <main className={styles.middle}>
           <div className={styles.notificationContainer}>
             <div className={`${styles.notification} ${isVisible ? styles.show : styles.hide}`}>
@@ -81,7 +82,7 @@ export default function Home() {
           </div>
         </main>
 
-        {/* 하단: 식단표 */}
+        {/* ✅ 하단: 식단표 */}
         <footer className={styles.footer}>
           <h3>오늘의 식단</h3>
           <ul>
