@@ -49,7 +49,7 @@
   border: 1px solid white;
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
-  resize: vertical; /* ✅ 크기 조절 가능 (세로 방향) */
+  resize: vertical;
 }
 
 /* ✅ 식단표 입력 필드 (줄바꿈 가능 & 크기 조절) */
@@ -62,19 +62,18 @@
   border: 1px solid white;
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
-  resize: vertical; /* ✅ 크기 조절 가능 (세로 방향) */
+  resize: vertical;
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
-/* ✅ 가로 정렬된 식단표 (줄바꿈 가능) */
+/* ✅ 가로 정렬된 식단표 */
 .mealContainer {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
   width: 100%;
-  resize: vertical;
 }
 
 .mealItem {
@@ -82,8 +81,8 @@
   flex-direction: column;
   align-items: center;
   flex: 1;
-  min-width: 160px; /* ✅ 최소 너비 증가 */
-  max-width: 240px; /* ✅ 최대 너비 증가 */
+  min-width: 160px;
+  max-width: 240px;
 }
 
 .mealItem label {
@@ -118,10 +117,10 @@
   background-color: #45a049;
 }
 
-/* ✅ 이전 기록 보기 버튼 (색 추가) */
-.historyButton {
-  background-color: #ffa500;
-  color: white;
+/* ✅ 공지사항 기록 보기 버튼 */
+.notificationHistoryButton {
+  background-color: #ffcc00;
+  color: black;
   padding: 10px 20px;
   font-size: 1.2rem;
   font-weight: bold;
@@ -131,7 +130,24 @@
   transition: background-color 0.3s;
 }
 
-.historyButton:hover {
+.notificationHistoryButton:hover {
+  background-color: #e6b800;
+}
+
+/* ✅ 식단표 기록 보기 버튼 */
+.mealHistoryButton {
+  background-color: #ffa500;
+  color: black;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.mealHistoryButton:hover {
   background-color: #e69500;
 }
 
@@ -162,8 +178,8 @@
   margin-top: 10px;
 }
 
-/* ✅ 미리보기 & 이전 기록 영역 */
-.previewBox, .historyBox {
+/* ✅ 공지사항 & 식단표 기록 스타일 */
+.notificationHistoryBox, .mealHistoryBox {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 5px;
@@ -173,12 +189,12 @@
   margin-top: 10px;
 }
 
-.previewBox h3, .historyBox h3 {
+.notificationHistoryBox h3, .mealHistoryBox h3 {
   font-size: 1.5rem;
   margin-bottom: 10px;
 }
 
-.previewBox p, .historyBox ul {
+.notificationHistoryBox p, .mealHistoryBox ul {
   font-size: 1.2rem;
 }
 

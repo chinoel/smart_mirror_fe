@@ -5,45 +5,128 @@ import Head from "next/head";
 import styles from "./Home.module.css";
 
 export default function Home() {
-  // ✅ 시계 상태 (초기값: null → Hydration 오류 방지)
-  const [currentTime, setCurrentTime] = useState<string | null>(null);
+  // ✅ 시계 상태 (초기값: 현재 시간)
+  const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
 
-  // ✅ 공지사항 목록 (나중에 API 연동 가능)
-  const notifications = [
-    "[공지] 오늘은 학교 행사일입니다.",
-    "[공지] 내일 급식 변경 안내",
-    "[공지] 3월 1일 공휴일 휴무",
-  ];
+  // ✅ 사용자 ID (얼굴 인식 API에서 받아올 값)
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // ✅ 공지사항 목록 (초기값: 빈 배열)
+  const [notifications, setNotifications] = useState<string[]>(["📢 공지사항을 불러오는 중..."]);
 
   // ✅ 현재 표시되는 공지 & 애니메이션 상태
-  const [currentNotification, setCurrentNotification] = useState<string>(notifications[0]);
+  const [currentNotification, setCurrentNotification] = useState<string | null>(notifications[0]);
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  // ✅ 1초마다 시계 업데이트 (클라이언트에서만 실행)
-  useEffect(() => {
-    setCurrentTime(new Date().toLocaleTimeString()); // 🚀 클라이언트에서만 초기 시간 설정
+  // ✅ 오늘의 식단 (초기값: 기본 데이터)
+  const [mealSchedule, setMealSchedule] = useState({
+    breakfast: "정보 없음",
+    lunch: "정보 없음",
+    dinner: "정보 없음",
+  });
 
-    const timer = setInterval(() => {
+  // ✅ 시계 업데이트 (1초마다)
+  useEffect(() => {
+    const updateClock = () => {
       setCurrentTime(new Date().toLocaleTimeString());
-    }, 1000);
+    };
 
-    return () => clearInterval(timer);
+    updateClock(); // 페이지 로딩 시 초기 값 설정
+    const clockInterval = setInterval(updateClock, 1000);
+
+    return () => clearInterval(clockInterval);
   }, []);
 
-  // ✅ 공지 알림 변경 로직 (10초마다 새 공지 표시)
+  // 🎯 ✅ [백엔드 연동] 사용자 얼굴 인식 API 호출 → userId 가져오기
+  const fetchUserId = async () => {
+    try {
+      const response = await fetch("http://백엔드서버주소/api/user-id"); // 📌 팀원이 제공할 API 엔드포인트
+      const data = await response.json();
+
+      if (response.ok) {
+        setUserId(data.userId); // ✅ 사용자 ID 저장 (얼굴 인식 후 반환된 값)
+      } else {
+        console.error("사용자 ID를 가져올 수 없음:", data.message);
+      }
+    } catch (error) {
+      console.error("사용자 ID 가져오기 오류:", error);
+    }
+  };
+
+  // 🎯 ✅ [백엔드 연동] 사용자별 공지 필터링 API 호출
+  const fetchNotifications = async (userId: string | null) => {
+    if (!userId) return; // 사용자 ID가 없으면 요청하지 않음
+
+    try {
+      const response = await fetch(`http://백엔드서버주소/api/notifications?userId=${userId}`);
+      const data = await response.json();
+
+      if (response.ok && data.notifications.length > 0) {
+        setNotifications(data.notifications);
+        setCurrentNotification(data.notifications[0]);
+      } else {
+        setNotifications(["📢 공지사항이 없습니다."]);
+        setCurrentNotification("📢 공지사항이 없습니다.");
+      }
+    } catch (error) {
+      console.error("공지사항 가져오기 오류:", error);
+      setNotifications(["❌ 공지사항을 불러올 수 없습니다."]);
+      setCurrentNotification("❌ 공지사항을 불러올 수 없습니다.");
+    }
+  };
+
+  // 🎯 ✅ [백엔드 연동] 사용자별 공지 읽음 기록 API 호출
+  const markNotificationAsRead = async (notification: string) => {
+    if (!userId) return; // 사용자 ID가 없으면 요청하지 않음
+
+    try {
+      await fetch("http://백엔드서버주소/api/mark-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          notification,
+        }),
+      });
+    } catch (error) {
+      console.error("공지 읽음 처리 오류:", error);
+    }
+  };
+
+  // ✅ 사용자 ID 가져오기 (페이지 로딩 시 실행)
   useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      setIsVisible(false); // 먼저 공지 사라짐
-      setTimeout(() => {
-        index = (index + 1) % notifications.length;
-        setCurrentNotification(notifications[index]);
-        setIsVisible(true); // 새로운 공지 등장
-      }, 500); // 공지 사라진 후 변경
-    }, 10000); // 10초마다 실행 (5초 표시 + 5초 대기)
-
-    return () => clearInterval(interval);
+    fetchUserId();
   }, []);
+
+  // ✅ 사용자 ID가 있으면 공지사항 가져오기
+  useEffect(() => {
+    if (userId) {
+      fetchNotifications(userId);
+    }
+  }, [userId]);
+
+  // ✅ 공지사항 변경 로직 (10초마다 새로운 공지 표시)
+  useEffect(() => {
+    if (notifications.length > 0) {
+      let index = 0;
+      const interval = setInterval(() => {
+        setIsVisible(false);
+        setTimeout(() => {
+          index = (index + 1) % notifications.length;
+          setCurrentNotification(notifications[index]);
+
+          // 🎯 ✅ 공지 읽음 처리 (사용자가 공지를 봤다고 서버에 알림)
+          markNotificationAsRead(notifications[index]);
+
+          setIsVisible(true);
+        }, 500);
+      }, 10000);
+
+      return () => clearInterval(interval);
+    }
+  }, [notifications]);
 
   // ✅ 동적으로 문서 제목 변경
   useEffect(() => {
@@ -52,7 +135,6 @@ export default function Home() {
 
   return (
     <>
-      {/* ✅ `next/head` 사용하여 탭 제목 설정 */}
       <Head>
         <title>스마트미러 - 메인</title>
       </Head>
@@ -64,8 +146,7 @@ export default function Home() {
             <span>SMARTMIR</span>
           </div>
           <div className={styles.headerRight}>
-            {/* 🚀 `null` 초기값 설정 → Hydration 오류 방지 */}
-            {currentTime ? <span>{currentTime}</span> : <span>로딩 중...</span>}
+            <span>{currentTime}</span>
           </div>
         </header>
 
@@ -82,9 +163,9 @@ export default function Home() {
         <footer className={styles.footer}>
           <h3>오늘의 식단</h3>
           <ul>
-            <li>아침: 떡국</li>
-            <li>점심: 김치찌개</li>
-            <li>저녁: 치킨</li>
+            <li>🍚 아침: {mealSchedule.breakfast}</li>
+            <li>🍛 점심: {mealSchedule.lunch}</li>
+            <li>🍲 저녁: {mealSchedule.dinner}</li>
           </ul>
         </footer>
       </div>
