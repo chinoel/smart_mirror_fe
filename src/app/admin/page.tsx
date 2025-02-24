@@ -8,21 +8,28 @@ import styles from "./Admin.module.css";
 export default function Admin() {
   const router = useRouter();
 
-  // ✅ 공지사항 & 식단표 상태 관리
-  const [notification, setNotification] = useState("");
-  const [mealSchedule, setMealSchedule] = useState({ breakfast: "", lunch: "", dinner: "" });
+  // ✅ 공지사항 상태 관리
+  const [notification, setNotification] = useState<string>("");
+
+  // ✅ 식단표 상태 관리 (Type 명확화)
+  const [mealSchedule, setMealSchedule] = useState<{ breakfast: string; lunch: string; dinner: string }>({
+    breakfast: "",
+    lunch: "",
+    dinner: "",
+  });
 
   // ✅ 이전 기록 상태 관리
-  const [showPopup, setShowPopup] = useState(false);
-  const [showNotificationHistory, setShowNotificationHistory] = useState(false);
-  const [showMealHistory, setShowMealHistory] = useState(false);
-  const [notificationHistory, setNotificationHistory] = useState([]);
-  const [mealHistory, setMealHistory] = useState([]);
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showNotificationHistory, setShowNotificationHistory] = useState<boolean>(false);
+  const [showMealHistory, setShowMealHistory] = useState<boolean>(false);
+  const [notificationHistory, setNotificationHistory] = useState<string[]>([]);
+  const [mealHistory, setMealHistory] = useState<string[]>([]);
 
-  // ✅ 공지사항 & 식단표 데이터 불러오기 (최적화)
+  // ✅ 공지사항 & 식단표 데이터 불러오기 (백엔드 API 연동)
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // 🎯 공지사항 및 식단표 데이터를 백엔드에서 가져옴
         const [notificationRes, mealRes] = await Promise.all([
           fetch("http://백엔드서버주소/api/admin/notifications"),
           fetch("http://백엔드서버주소/api/admin/meal-schedule"),
@@ -30,6 +37,7 @@ export default function Admin() {
 
         const [notificationData, mealData] = await Promise.all([notificationRes.json(), mealRes.json()]);
 
+        // ✅ 백엔드 응답 데이터를 상태에 반영
         if (notificationRes.ok) setNotification(notificationData.notification);
         if (mealRes.ok) setMealSchedule(mealData);
       } catch (error) {
@@ -40,12 +48,13 @@ export default function Admin() {
     fetchData();
   }, []);
 
-  // ✅ 이전 기록 불러오기 (백엔드 연동)
+  // ✅ 이전 기록 불러오기 (백엔드 API 연동)
   const fetchHistory = async () => {
     try {
       const response = await fetch("http://백엔드서버주소/api/admin/history");
       const data = await response.json();
 
+      // ✅ 백엔드 응답 데이터를 상태에 반영
       if (response.ok) {
         setNotificationHistory(data.notificationHistory);
         setMealHistory(data.mealHistory);
@@ -104,13 +113,13 @@ export default function Admin() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>식단표 수정</h2>
           <div className={styles.mealContainer}>
-            {["breakfast", "lunch", "dinner"].map((meal, index) => (
-              <div key={index} className={styles.mealItem}>
+            {(["breakfast", "lunch", "dinner"] as const).map((meal) => (
+              <div key={meal} className={styles.mealItem}>
                 <label>{meal === "breakfast" ? "🍚 아침" : meal === "lunch" ? "🍛 점심" : "🍲 저녁"}</label>
                 <input
                   type="text"
                   value={mealSchedule[meal]}
-                  onChange={(e) => setMealSchedule({ ...mealSchedule, [meal]: e.target.value })}
+                  onChange={(e) => setMealSchedule((prev) => ({ ...prev, [meal]: e.target.value }))}
                   className={styles.input}
                 />
               </div>
