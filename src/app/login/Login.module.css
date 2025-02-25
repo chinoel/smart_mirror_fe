@@ -1,0 +1,116 @@
+/* ✅ 전체 컨테이너 */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  color: white;
+}
+
+/* ✅ 제목 */
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* ✅ 로그인 폼 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ✅ 입력 필드 */
+.input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  border: 1px solid white;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* ✅ 비밀번호 입력 필드 */
+.passwordWrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
+}
+
+/* ✅ 로그인 버튼 */
+.button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* ✅ 회원가입 영역 */
+.registerContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.registerText {
+  font-size: 1rem;
+  color: gray;
+}
+
+.registerButton {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.registerButton:hover {
+  background-color: #218838;
+}
+
+/* ✅ 팝업 메시지 */
+.popup {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.success {
+  background-color: rgba(0, 255, 0, 0.2);
+  color: lightgreen;
+}
+
+.error {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: lightcoral;
+}

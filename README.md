@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📌 SMARTMIR - 스마트미러 프로젝트
 
-## Getting Started
+이 프로젝트는 **Next.js와 TypeScript**를 기반으로 개발된 **스마트미러**입니다.  
+관리자 페이지에서 **공지사항 및 식단표 수정**이 가능하며, **실시간 시계 및 공지사항 표시 기능**을 제공합니다.  
+추후 **날씨 및 음악 연동 기능**도 추가될 예정입니다.  
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 **프로젝트 시작하기 (Getting Started)**
+
+### **1️⃣ 프로젝트 클론하기**
+먼저, 프로젝트를 로컬 환경으로 다운로드합니다.
 ```
+git clone https://github.com/AURORA-GLOW/smartmir.git
+cd smartmir
+2️⃣ 패키지 설치
+아래 명령어로 필요한 패키지를 설치합니다.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+npm install
+3️⃣ 개발 서버 실행
+아래 명령어 중 하나를 실행하여 개발 서버를 시작합니다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+npm run dev
+✅ 실행 후, http://localhost:3000 에 접속하여 확인하세요.
 
-## Learn More
+🎯 주요 기능 (Features)
+✅ 실시간 시계 표시 (상단 우측)
+✅ 공지사항 팝업 기능 (슬라이드 형식으로 여러 개 표시 가능)
+✅ 식단표 표시 (관리자 페이지에서 실시간 수정 가능)
+✅ 관리자 로그인 기능 (공지 및 식단표 수정 가능)
+✅ 반응형 디자인 적용 (스마트미러 화면 최적화)
+🚀 추후 추가 예정: 날씨 정보, 음악 연동 기능
 
-To learn more about Next.js, take a look at the following resources:
+🛠️ 기술 스택 (Tech Stack)
+기술	설명
+Next.js	React 기반의 프레임워크 (TypeScript 사용)
+TypeScript	정적 타입을 활용한 안정적인 개발
+Tailwind CSS	빠르고 효율적인 스타일링 적용
+React Hooks	useState, useEffect 활용
+API 연동	공지사항 및 식단표 데이터 관리
+AWS 배포 예정	클라우드 서버 환경 구축 (백엔드 팀 협업)
+📚 추가 정보 (More Info)
+🔗 Next.js 공식 문서
+🔗 Next.js GitHub 저장소
+🔗 Tailwind CSS 공식 문서
+🔗 React 공식 문서
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+📌 개발 진행 상황
+🚀 현재 구현 완료:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+실시간 시계 표시
+공지사항 팝업 기능
+관리자 로그인 및 페이지
+식단표 표시
+얼굴 인식 기반 공지 필터링 (팀원 백엔드 연동 중)
+🔥 추후 추가 예정:
 
-## Deploy on Vercel
+날씨 정보 표시 (API 연동)
+음악 연동 기능
+라즈베리파이 최적화
+백엔드 연동 최종 테스트
+배포 (라즈베리파이 & AWS 등)
+✨ 🔹 추가된 내용
+✅ 환경 변수 설정 (.env 파일)
+✅ API 연동 정보 (로그인, 회원가입, 공지, 식단표, 얼굴 인식 등)
+✅ 얼굴 인식 기반 공지 필터링 정보 추가
+✅ 개발 진행 상황 최신화
+✅ 기여 방법 가이드 추가
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📝 기여 방법 (Contributing)
+1️⃣ 이 저장소를 포크합니다.
+2️⃣ 새로운 브랜치를 생성합니다.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+git checkout -b feature-새로운기능
+3️⃣ 변경 사항을 커밋합니다.
+
+
+git commit -m "새로운 기능 추가"
+4️⃣ 브랜치를 푸시합니다.
+
+
+git push origin feature-새로운기능
+5️⃣ 풀 리퀘스트(Pull Request)를 생성합니다.
+🎯 팀원들과 협업하여 스마트미러 프로젝트를 더욱 발전시켜보세요! 🚀
+
+📞 문의
+프로젝트 관련 문의는 GitHub 이슈 또는 팀 협업 채널을 이용해주세요. 😊
+
+yaml
+
+
+---
+
+### **📌 병합 충돌 해결 후 해야 할 작업**
+1️⃣ **해결된 코드 저장**
+```
+git add README.md
+git commit -m "📝 병합 충돌 해결: README.md 업데이트"
+2️⃣ 다른 충돌된 파일도 같은 방식으로 정리한 후 추가
+
+
+git add .
+git commit -m "🔧 병합 충돌 해결 완료"
+3️⃣ 팀원 저장소에 병합된 코드 푸시
+
+git push teamRepo master
