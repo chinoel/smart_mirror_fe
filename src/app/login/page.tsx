@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-export default function Login() {
-  return (
-    <>
-      Login
-    </>
-  );
-}
-=======
 "use client";
 
 import { useState, useEffect } from "react";
@@ -130,4 +121,3 @@ export default function Login() {
     </>
   );
 }
->>>>>>> main
