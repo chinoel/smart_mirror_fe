@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
-import styles from "./Admin.module.css";
+import styles from "@/styles/Admin.module.css";
 
 export default function Admin() {
   const router = useRouter();

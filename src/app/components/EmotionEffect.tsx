@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import styles from "./EmotionEffect.module.css";
+import styles from "@/styles/EmotionEffect.module.css";
 
 export default function EmotionEffect() {
   const [emotion, setEmotion] = useState<string>("기쁨");

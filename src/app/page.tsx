@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Head from "next/head";
-import styles from "./Home.module.css";
+import styles from "@/styles/Home.module.css";
 
 export default function Home() {
   // ✅ 시계 상태 (초기값: 현재 시간)

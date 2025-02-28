@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head"; // ✅ `next/head` 사용
-import styles from "./Login.module.css";
+import styles from "@/styles/Login.module.css";
 
 export default function Login() {
-  const [email, setEmail] = useState(""); // ✅ 이메일 입력 상태
+  const [username, setusername] = useState(""); // ✅ 이메일 입력 상태
   const [password, setPassword] = useState(""); // ✅ 비밀번호 입력 상태
   const [showPassword, setShowPassword] = useState(false); // ✅ 비밀번호 보기 토글
   const [message, setMessage] = useState<string | null>(null); // ✅ 로그인 결과 메시지
@@ -25,13 +25,13 @@ export default function Login() {
 
     try {
       // 🎯 백엔드 로그인 API 호출 (팀원이 구현할 부분)
-      const response = await fetch("http://백엔드서버주소/api/login", {
+      const response = await fetch("http://localhost:8888/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          username,
           password,
         }),
       });
@@ -42,7 +42,7 @@ export default function Login() {
         // ✅ JWT 토큰 저장 (백엔드에서 토큰을 발급해야 함)
         localStorage.setItem("token", data.token);
 
-        setMessage(`${email}님, 환영합니다! 🎉`);
+        setMessage(`${username}님, 환영합니다! 🎉`);
         setShowMessage(true);
 
         setTimeout(() => {
@@ -75,10 +75,10 @@ export default function Login() {
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* ✅ 이메일 입력 */}
           <input
-            type="email"
+            type="username"
             placeholder="이메일"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setusername(e.target.value)}
             className={styles.input}
             required
           />

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
-import styles from "./Register.module.css";
+import styles from "@/styles/Register.module.css";
 
 export default function Register() {
   const router = useRouter();
