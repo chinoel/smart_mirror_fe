@@ -65,7 +65,9 @@ export default function Mirror() {
                         faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
                     }
 
-                    console.log(resizedDetections)
+                    if (resizedDetections.length > 0) {
+                        console.log(resizedDetections)
+                    }
                 }
             }, 1000) // time
         } catch (err) {
@@ -73,16 +75,14 @@ export default function Mirror() {
         }
     }
 
-    // Run the camera and load the models (카메라 실행 및 모델 로드)
     useEffect(() => {
         initCamera();
         loadModels();
     }, [])
 
-    
+
     return (
         <div className="myapp">
-            <h1>Face Detection</h1>
             <video ref={videoRef} autoPlay playsInline width="940" height="650" style={{ display: 'none' }}></video>
             <canvas ref={canvasRef} width="940" height="650" style={{ display: 'none' }} />
         </div>
