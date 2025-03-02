@@ -18,6 +18,10 @@
   border-bottom: 1px solid white;
 }
 
+.headerLeft {
+  font-size: 1.5rem;
+}
+
 .headerCenter {
   font-size: 1.8rem;
   font-weight: bold;
