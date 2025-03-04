@@ -17,9 +17,9 @@ export default function Meal() {
     }, []);
 
     return (
-        <div>
+        <>
             {/* 최신 학식 정보를 가져오는 시스템 만들었음. 완전한건 아님 */}
             {imageUrl ? <img src={imageUrl} alt="오늘의 학식" /> : <p>Loading...</p>}
-        </div>
+        </>
     );
 }

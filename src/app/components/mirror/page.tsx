@@ -8,6 +8,8 @@ export default function Mirror() {
     const videoRef = useRef<HTMLVideoElement>(null!);
     const canvasRef = useRef<HTMLCanvasElement>(null!);
 
+    
+
     // Initialize the camera (카메라 초기화)
     const initCamera = async () => {
         try {
@@ -69,7 +71,7 @@ export default function Mirror() {
                         console.log(resizedDetections)
                     }
                 }
-            }, 10000) // time
+            }, 5000) // time
         } catch (err) {
             console.error(err)
         }
@@ -82,7 +84,7 @@ export default function Mirror() {
 
 
     return (
-        <div className="myapp">
+        <div className="faceApp">
             <video ref={videoRef} autoPlay playsInline width="940" height="650" style={{ display: 'none' }}></video>
             <canvas ref={canvasRef} width="940" height="650" style={{ display: 'none' }} />
         </div>
