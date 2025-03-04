@@ -4,18 +4,19 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import axios from "axios";
+import Mirror from "@/app/components/mirror/page";
+import Weather from "@/app/components/weather/page";
 
 export default function Home() {
-  const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
+  const [currentTime, setCurrentTime] = useState<string>("");
 
+  // 공지사항 내용
   const [notifications, setNotifications] = useState<string[]>(["📢 공지사항을 불러오는 중..."]);
-  const [weather, setWeather] = useState<string>("🌤 불러오는 중...");
 
-  const [currentNotification, setCurrentNotification] = useState<string | null>(notifications[0]);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  // 공지 보여주고 숨기는 역할
+  const [isVisible, setIsVisible] = useState<boolean>(true);
 
-
-  // 시계 업데이트 (1초마다)
+  // 시계
   useEffect(() => {
     const updateClock = () => {
       setCurrentTime(new Date().toLocaleTimeString());
@@ -27,21 +28,6 @@ export default function Home() {
     return () => clearInterval(clockInterval);
   }, []);
 
-  useEffect(() => {
-    axios.get("/api/weather")
-      .then((response) => {
-        // 날씨 데이터가 성공적으로 받아졌고, fcstValue가 존재할 때
-        if (response.data.success && response.data.weather?.temperature?.fcstValue) {
-          setWeather(`🌤 현재 기온: ${response.data.weather.temperature.fcstValue}°C`);
-        } else {
-          setWeather("날씨 정보를 가져오는 데 실패했습니다.");
-        }
-      })
-      .catch(() => {
-        setWeather("날씨 정보를 가져오는 데 실패했습니다.");
-      });
-  }, []);
-
   return (
     <>
       <Head>
@@ -51,7 +37,7 @@ export default function Home() {
       <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.headerLeft}>
-            <span>{weather}</span>
+            <Weather/>
           </div>
           <div className={styles.headerCenter}>
           </div>
@@ -64,10 +50,11 @@ export default function Home() {
         <main className={styles.middle}>
           <div className={styles.notificationContainer}>
             <div className={`${styles.notification} ${isVisible ? styles.show : styles.hide}`}>
-              <p>{currentNotification}</p>
+              <p>{notifications}</p>
             </div>
           </div>
         </main>
+        <Mirror />
       </div>
     </>
   );

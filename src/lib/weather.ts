@@ -60,9 +60,7 @@ function getBaseTime() {
     const hour = now.getHours();
 
     const times = [2, 5, 8, 11, 14, 17, 20, 23];
-    let baseHour = times.reduce((prev, curr) =>
-        Math.abs(curr - hour) >= 3 ? prev : curr
-    );
+    let baseHour = times.find(time => hour >= time) || 23;
 
     if (hour < 2) {
         // 자정~2시 사이는 전날 23시 데이터
@@ -72,6 +70,8 @@ function getBaseTime() {
 
     const baseDate = now.toISOString().slice(0, 10).replace(/-/g, "");
     const baseTime = baseHour.toString().padStart(2, "0") + "00";
+
+    console.log(`Base Date: ${baseDate}, Base Time: ${baseTime}`);
 
     return { baseDate, baseTime };
 }

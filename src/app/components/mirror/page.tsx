@@ -69,7 +69,7 @@ export default function Mirror() {
                         console.log(resizedDetections)
                     }
                 }
-            }, 1000) // time
+            }, 10000) // time
         } catch (err) {
             console.error(err)
         }
