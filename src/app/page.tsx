@@ -7,6 +7,7 @@ import Weather from "@/app/components/weather/page";
 import Clock from "@/app/components/clock/page";
 import Notification from "@/app/components/notification/page";
 import Meal from "@/app/components/meal/page";
+import { MirrorProvider } from "./context/MirrorContext";
 
 export default function Home() {
   return (
@@ -24,9 +25,11 @@ export default function Home() {
             <Clock />
           </div>
         </header>
-        <Notification />
-        <Meal />
-        <Mirror />
+        <MirrorProvider>
+          <Notification/>
+          <Meal/>
+          <Mirror/>
+        </MirrorProvider>
       </div>
     </>
   );

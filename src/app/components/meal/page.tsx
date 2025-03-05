@@ -1,9 +1,13 @@
 "use client";
 
+import { useMirror } from '@/app/context/MirrorContext';
 import { useEffect, useState } from 'react';
 
 export default function Meal() {
+    const { mirrorMode, setMirrorMode } = useMirror();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    if (mirrorMode !== 2) return null;
 
     useEffect(() => {
         fetch('/api/meal')
@@ -18,7 +22,6 @@ export default function Meal() {
 
     return (
         <>
-            {/* 최신 학식 정보를 가져오는 시스템 만들었음. 완전한건 아님 */}
             {imageUrl ? <img src={imageUrl} alt="오늘의 학식" /> : <p>Loading...</p>}
         </>
     );

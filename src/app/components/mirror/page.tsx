@@ -2,15 +2,14 @@
 import { useEffect, useRef } from "react";
 import * as faceapi from 'face-api.js'
 import '@/styles/faceApp.css'
-
+import { useMirror } from "@/app/context/MirrorContext";
 
 export default function Mirror() {
+    const { mirrorMode, setMirrorMode, setNotification } = useMirror();
+
     const videoRef = useRef<HTMLVideoElement>(null!);
     const canvasRef = useRef<HTMLCanvasElement>(null!);
 
-    
-
-    // Initialize the camera (카메라 초기화)
     const initCamera = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -69,6 +68,12 @@ export default function Mirror() {
 
                     if (resizedDetections.length > 0) {
                         console.log(resizedDetections)
+                        setNotification('얼굴이 감지되었습니다.')
+                        setMirrorMode(1)
+                    }
+                    else {
+                        setNotification('')
+                        setMirrorMode(0)
                     }
                 }
             }, 5000) // time
