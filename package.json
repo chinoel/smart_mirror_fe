@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mediapipe/hands": "^0.4.1675469240",
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "face-api.js": "^0.22.2",
