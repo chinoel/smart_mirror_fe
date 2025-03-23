@@ -9,23 +9,22 @@ const HandGestureCapture = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   
   useEffect(() => {
-    // 손 모델 로드
     const hands = new handpose.Hands({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
     });
     
     hands.setOptions({
-      maxNumHands: 2,  // 최대 2개의 손 인식
+      maxNumHands: 2,
       modelComplexity: 1,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
 
-    // 캔버스 설정
+
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
 
-    // 비디오 설정
+
     const startVideo = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -43,7 +42,8 @@ const HandGestureCapture = () => {
       }
     };
 
-    // 손 인식 및 그리기
+
+
     const detectHandGestures = async () => {
       if (videoRef.current && videoRef.current.readyState === 4 && canvas && ctx) {
         await hands.send({ image: videoRef.current });
@@ -62,7 +62,8 @@ const HandGestureCapture = () => {
       }
     });
 
-    // 손의 랜드마크를 그리는 함수
+
+
     const drawHandLandmarks = (ctx: CanvasRenderingContext2D, landmarks: handpose.NormalizedLandmark[]) => {
       ctx.beginPath();
       landmarks.forEach((landmark) => {
