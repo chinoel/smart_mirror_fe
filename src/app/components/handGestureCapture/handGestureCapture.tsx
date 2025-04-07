@@ -42,6 +42,21 @@ const HandGestureCapture = () => {
       }
     };
 
+    const detectGesture = (landmarks: handpose.NormalizedLandmark[]) => {
+      const thumbTip = landmarks[4];
+      const indexTip = landmarks[8];
+      const middletip = landmarks[12];
+
+      const distance = Math.sqrt(
+        Math.pow(thumbTip.x - indexTip.x, 2) +
+        Math.pow(thumbTip.y - indexTip.y, 2)
+      );
+
+      if (distance < 0.1) {
+        return "pinch";
+      }
+      else "none";
+    }
 
 
     const detectHandGestures = async () => {
@@ -57,6 +72,11 @@ const HandGestureCapture = () => {
         if (handsResults.multiHandLandmarks) {
           handsResults.multiHandLandmarks.forEach((handLandmarks) => {
             drawHandLandmarks(ctx, handLandmarks);
+
+            const gesture = detectGesture(handLandmarks);
+            if (gesture) {
+              console.log("Gesture detected:", gesture);
+            }
           });
         }
       }
