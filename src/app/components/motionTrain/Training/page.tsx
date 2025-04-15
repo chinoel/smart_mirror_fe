@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as tf from '@tensorflow/tfjs';
 
 interface TrainingMetrics {
@@ -14,19 +14,25 @@ const GestureTraining = () => {
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState('');
     const [trainedLabels, setTrainedLabels] = useState<string[]>([]);
-    const [epochs, setEpochs] = useState(50);
-    const [batchSize, setBatchSize] = useState(32);
+    const [epochs, setEpochs] = useState(100);
+    const [batchSize, setBatchSize] = useState(16);
     const [validationSplit, setValidationSplit] = useState(0.2);
-
     const [trainingCount, setTrainingCount] = useState(1);
     const [currentTraining, setCurrentTraining] = useState(0);
     const [bestAccuracy, setBestAccuracy] = useState(0);
     const [metrics, setMetrics] = useState<TrainingMetrics[]>([]);
 
+    useEffect(() => {
+        return () => {
+            tf.disposeVariables();
+        };
+    }, []);
+
     const trainModel = async () => {
         setIsTraining(true);
         setError('');
         setMetrics([]);
+        let currentBestAccuracy = 0;
         let bestModel: tf.LayersModel | null = null as tf.LayersModel | null;
 
         try {
@@ -42,7 +48,17 @@ const GestureTraining = () => {
             for (let training = 0; training < trainingCount; training++) {
                 setCurrentTraining(training + 1);
 
-                const xs = tf.tensor2d(gestureData.map((d: any) => d.landmarks));
+                // 데이터 정규화
+                const landmarks = gestureData.map((d: any) => d.landmarks);
+                const normalizedData = tf.tidy(() => {
+                    const inputTensor = tf.tensor2d(landmarks);
+                    const mean = inputTensor.mean(0);
+                    const { variance } = tf.moments(inputTensor, 0);
+                    const std = tf.sqrt(variance);
+                    return inputTensor.sub(mean).div(std);
+                });
+
+                const xs = normalizedData;
                 const ys = tf.oneHot(
                     gestureData.map((d: any) => uniqueLabels.indexOf(d.label)),
                     uniqueLabels.length
@@ -50,60 +66,80 @@ const GestureTraining = () => {
 
                 const model = tf.sequential();
 
+                // 입력층
                 model.add(tf.layers.dense({
                     inputShape: [63],
                     units: 128,
-                    activation: 'relu'
+                    activation: 'relu',
+                    kernelInitializer: 'glorotNormal'
                 }));
 
-                model.add(tf.layers.dropout({ rate: 0.2 }));
+                // 배치 정규화 및 드롭아웃
+                model.add(tf.layers.batchNormalization());
+                model.add(tf.layers.dropout({ rate: 0.3 }));
 
+                // 은닉층
                 model.add(tf.layers.dense({
                     units: 64,
-                    activation: 'relu'
+                    activation: 'relu',
+                    kernelInitializer: 'glorotNormal'
                 }));
 
+                model.add(tf.layers.batchNormalization());
+                model.add(tf.layers.dropout({ rate: 0.2 }));
+
+                // 출력층
                 model.add(tf.layers.dense({
                     units: uniqueLabels.length,
                     activation: 'softmax'
                 }));
 
+                // 모델 컴파일
                 model.compile({
                     optimizer: tf.train.adam(0.001),
                     loss: 'categoricalCrossentropy',
                     metrics: ['accuracy'],
                 });
 
+                // 모델 학습
                 const history = await model.fit(xs, ys, {
                     epochs: epochs,
                     batchSize: batchSize,
                     validationSplit: validationSplit,
+                    shuffle: true,
                     callbacks: {
                         onEpochEnd: (epoch, logs: any) => {
                             const currentProgress =
                                 ((training * epochs) + epoch + 1) / (epochs * trainingCount) * 100;
                             setProgress(Math.round(currentProgress));
 
-                            setMetrics(prev => [...prev, {
+                            const currentMetrics = {
                                 loss: logs.loss,
                                 acc: logs.acc,
                                 val_loss: logs.val_loss,
                                 val_acc: logs.val_acc
-                            }]);
+                            };
 
-                            if (logs.val_acc > bestAccuracy) {
-                                setBestAccuracy(logs.val_acc);
+                            setMetrics(prev => [...prev, currentMetrics]);
+
+                            if (logs.val_acc > currentBestAccuracy) {
+                                currentBestAccuracy = logs.val_acc;
+                                setBestAccuracy(currentBestAccuracy);
                                 bestModel = model;
                             }
                         }
                     }
                 });
+
+                // 메모리 정리
+                xs.dispose();
+                ys.dispose();
             }
 
             if (bestModel) {
                 await bestModel.save('indexeddb://gesture-model');
                 localStorage.setItem('gestureLabels', JSON.stringify(uniqueLabels));
-                alert(`모델 학습이 완료\n최고 정확도: ${(bestAccuracy * 100).toFixed(2)}%`);
+                alert(`모델 학습이 완료되었습니다.\n최고 정확도: ${(currentBestAccuracy * 100).toFixed(2)}%`);
             }
 
         } catch (err: any) {
@@ -113,26 +149,17 @@ const GestureTraining = () => {
         }
     };
 
-    // 모델 다운로드 함수
     const downloadModel = async () => {
         try {
             const model = await tf.loadLayersModel('indexeddb://gesture-model');
-
-            // 모델을 JSON 형식으로 변환
             const modelJSON = model.toJSON();
-
-            // Blob 생성
             const blob = new Blob([JSON.stringify(modelJSON)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-
-            // 다운로드 링크 생성
             const a = document.createElement('a');
             a.href = url;
             a.download = 'gesture-model.json';
             document.body.appendChild(a);
             a.click();
-
-            // cleanup
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         } catch (error) {
@@ -140,11 +167,10 @@ const GestureTraining = () => {
         }
     };
 
-    // 가중치 다운로드 함수
     const downloadWeights = async () => {
         try {
             const model = await tf.loadLayersModel('indexeddb://gesture-model');
-            const weights = await model.save('downloads://gesture-model-weights');
+            await model.save('downloads://gesture-model-weights');
         } catch (error) {
             console.error('가중치 다운로드 중 오류:', error);
         }
@@ -154,7 +180,6 @@ const GestureTraining = () => {
         <div className="p-4">
             <h2 className="text-2xl font-bold mb-4 text-black">제스처 모델 학습</h2>
 
-            {/* 학습 매개변수 설정 폼 */}
             <div className="mb-6 p-4 bg-white rounded shadow text-black">
                 <h3 className="font-bold mb-4">학습 매개변수 설정</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -221,10 +246,10 @@ const GestureTraining = () => {
             <div className="mb-4">
                 {isTraining ? (
                     <div className="space-y-4">
-                        <div className="text-black">
+                        <div className="text-white">
                             학습 회차: {currentTraining}/{trainingCount}
                         </div>
-                        <div className="text-black">
+                        <div className="text-white">
                             진행률: {progress}%
                         </div>
                         <div className="w-full bg-gray-200 rounded">
@@ -272,8 +297,8 @@ const GestureTraining = () => {
 
             {trainedLabels.length > 0 && (
                 <div className="mt-4 text-white">
-                    <h3 className="font-bold mb-2 ">학습된 제스처:</h3>
-                    <ul className="list-disc list-inside ">
+                    <h3 className="font-bold mb-2">학습된 제스처:</h3>
+                    <ul className="list-disc list-inside">
                         {trainedLabels.map((label, index) => (
                             <li key={index}>{label}</li>
                         ))}
