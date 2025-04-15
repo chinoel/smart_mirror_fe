@@ -4,6 +4,7 @@ import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-webgl';
 import * as handpose from '@tensorflow-models/handpose';
 import Webcam from 'react-webcam';
+import { HandpaseConfig } from '@/utils/handposeConfig';
 
 interface DataCollectionProps {
     gestureName: string;
@@ -20,10 +21,8 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const drawHand = (predictions: any, ctx: CanvasRenderingContext2D) => {
-        // 감지된 손이 있다면
         if (predictions.length > 0) {
             predictions.forEach((prediction: any) => {
-                // 랜드마크 포인트 그리기
                 const landmarks = prediction.landmarks;
                 for (let i = 0; i < landmarks.length; i++) {
                     const x = landmarks[i][0];
@@ -35,7 +34,6 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
                     ctx.fill();
                 }
 
-                // 손가락 연결선 그리기
                 const fingers = [
                     [0, 1, 2, 3, 4],
                     [0, 5, 6, 7, 8],
@@ -70,21 +68,41 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
         const ctx = canvas.getContext('2d');
 
         if (video && ctx) {
-            // Canvas 크기를 비디오 크기에 맞춤
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 
-            // 비디오 프레임을 Canvas에 그림
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // 손 감지
             const hand = await handposeModel.estimateHands(video);
 
-            // 감지된 손 그리기
-            drawHand(hand, ctx);
+            // 손의 깊이(z축)와 신뢰도를 확인
+            const filteredHands = hand.filter((prediction: any) => {
+
+                const confidenceThreshold = HandpaseConfig.confidenceThreshold;
+
+                const maxDistance = HandpaseConfig.maxDistance;
+                const minDistance = HandpaseConfig.minDistance;
+
+                const width = prediction.boundingBox.bottomRight[0] - prediction.boundingBox.topLeft[0];
+                const height = prediction.boundingBox.bottomRight[1] - prediction.boundingBox.topLeft[1];
+                const handSize = Math.sqrt(width * width + height * height);
+
+                return (
+                    prediction.handInViewConfidence > confidenceThreshold &&
+                    handSize >= minDistance &&
+                    handSize <= maxDistance
+                );
+            });
+
+            // 필터링된 손만 그리기
+            if (filteredHands.length > 0) {
+                drawHand(filteredHands, ctx);
+            } else {
+                // 손이 감지 범위를 벗어났을 때 캔버스 지우기
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
         }
 
-        // 다음 프레임 요청
         requestAnimationFrame(detect);
     };
 
@@ -112,8 +130,8 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
     const clearData = () => {
         if (window.confirm('모든 제스처 데이터를 삭제하시겠습니까?')) {
             localStorage.removeItem('gestureData');
-            setDataset([]); // 현재 세션 데이터도 초기화
-            setTotalCount(0); // 총 카운트도 초기화
+            setDataset([]);
+            setTotalCount(0);
             alert('데이터가 삭제되었습니다.');
         }
     };
@@ -133,12 +151,18 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
     useEffect(() => {
         const loadModel = async () => {
             try {
-                await tf.ready();
-                await tf.setBackend('webgl');
+                // tf 초기화는 한 번만 수행
+                if (!tf.getBackend()) {
+                    await tf.ready();
+                    await tf.setBackend('webgl');
+                }
 
-                const model = await handpose.load();
-                setHandposeModel(model);
-                setError('');
+                // 모델이 아직 로드되지 않았을 때만 로드
+                if (!handposeModel) {
+                    const model = await handpose.load();
+                    setHandposeModel(model);
+                    setError('');
+                }
             } catch (err) {
                 setError('모델 로딩 실패');
                 console.error(err);
@@ -156,12 +180,11 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
         setIsCollecting(true);
         setError('');
 
-        // 자동 데이터 수집 (10초간 100개 샘플)
         const interval = setInterval(async () => {
             await collectData();
         }, 100);
 
-        // 10초 후 수집 중지
+
         setTimeout(() => {
             clearInterval(interval);
             setIsCollecting(false);
@@ -176,15 +199,31 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
                 webcamRef.current.video as HTMLVideoElement
             );
 
-            if (hand.length > 0) {
-                const landmarks = hand[0].landmarks.flat();
+            // 거리와 신뢰도 필터링 적용
+            const filteredHands = hand.filter((prediction: any) => {
+                const confidenceThreshold = HandpaseConfig.confidenceThreshold;
+                const maxDistance = HandpaseConfig.maxDistance;
+                const minDistance = HandpaseConfig.minDistance;
+
+                const width = prediction.boundingBox.bottomRight[0] - prediction.boundingBox.topLeft[0];
+                const height = prediction.boundingBox.bottomRight[1] - prediction.boundingBox.topLeft[1];
+                const handSize = Math.sqrt(width * width + height * height);
+
+                return (
+                    prediction.handInViewConfidence > confidenceThreshold &&
+                    handSize >= minDistance &&
+                    handSize <= maxDistance
+                );
+            });
+
+            if (filteredHands.length > 0) {
+                const landmarks = filteredHands[0].landmarks.flat();
                 setDataset(prev => [...prev, {
                     landmarks,
                     label: gestureName,
                     timestamp: Date.now()
                 }]);
 
-                // 로컬 스토리지에 데이터 저장
                 const existingData = JSON.parse(localStorage.getItem('gestureData') || '[]');
                 existingData.push({
                     landmarks,
@@ -200,24 +239,34 @@ const DataCollection: React.FC<DataCollectionProps> = ({ gestureName }) => {
         }
     };
 
+    const videoConstraints = {
+        facingMode: 'user',
+        width: 640,
+        height: 480,
+    };
+
     return (
         <div className="p-4">
-            <div className="mb-4 relative">
+            <div className="mb-4 relative w-[640px] h-[480px]">
                 <Webcam
                     ref={webcamRef}
+                    videoConstraints={videoConstraints}
                     style={{
-                        width: 640,
-                        height: 480,
+                        width: '100%',
+                        height: '100%',
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
                     }}
                 />
                 <canvas
                     ref={canvasRef}
                     style={{
-                        width: 640,
-                        height: 480,
+                        width: '100%',
+                        height: '100%',
                         position: 'absolute',
-                        top: 0,
                         left: 0,
+                        top: 0,
                     }}
                 />
             </div>
