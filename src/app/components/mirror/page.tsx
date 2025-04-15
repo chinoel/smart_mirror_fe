@@ -62,7 +62,10 @@ export default function Mirror() {
                 const detections = await faceapi.detectAllFaces(
                     videoRef.current!,
                     new faceapi.TinyFaceDetectorOptions()
-                ).withFaceLandmarks().withFaceExpressions()
+                )
+                .withFaceLandmarks()
+                .withFaceDescriptors()
+                .withFaceExpressions()
 
                 const canvas = canvasRef.current;
                 if (canvas) {
@@ -86,7 +89,12 @@ export default function Mirror() {
                     }
 
                     if (resizedDetections.length > 0) {
-                        dataSend(resizedDetections)
+                        const faceDescriptors = resizedDetections.map(detections => ({
+                            descriptor: Array.from(detections.descriptor),
+                            expressions: detections.expressions
+                        }))
+
+                        dataSend(faceDescriptors);
                         setNotification('얼굴이 감지되었습니다.')
                         setMirrorMode(1)
                     }

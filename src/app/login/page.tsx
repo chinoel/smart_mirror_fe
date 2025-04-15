@@ -105,7 +105,7 @@ export default function Login() {
 
         {/* ✅ 회원가입 버튼 (계정이 없는 경우) */}
         <div className={styles.registerContainer}>
-          <p className={styles.registerText}>계정이 없으신가요?</p>
+          <p className={styles.registerText}>계정이 없으신가요s?</p>
           <button onClick={() => router.push("/register")} className={styles.registerButton}>
             회원가입
           </button>
