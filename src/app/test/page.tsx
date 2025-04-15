@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Head from "next/head";
-import TestMode from "./TestMode";
-import styles from "./test.module.css";
+import TestMode from "./EmotionEffect";
+import styles from "./EmotionEffectTest.module.css"; // ✅ 올바른 CSS 파일명으로 수정
 
 export default function TestPage() {
   // ✅ 강제로 탭 제목 변경
@@ -18,7 +18,7 @@ export default function TestPage() {
         <meta name="description" content="스마트미러 감정 테스트 모드 페이지입니다." />
       </Head>
 
-      <div className={styles.container}>
+      <div className={styles.emotionEffectContainer}>
         <h1>감정 테스트 모드</h1>
         <TestMode />
       </div>

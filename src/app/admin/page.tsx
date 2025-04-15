@@ -5,180 +5,58 @@ import { useRouter } from "next/navigation";
 import Head from "next/head";
 import styles from "@/styles/Admin.module.css";
 
-export default function Admin() {
+export default function AdminPages() {
   const router = useRouter();
-
-  // ✅ 공지사항 상태 관리
-  const [notification, setNotification] = useState<string>("");
-
-  // ✅ 식단표 상태 관리 (Type 명확화)
-  const [mealSchedule, setMealSchedule] = useState<{ breakfast: string; lunch: string; dinner: string }>({
-    breakfast: "",
-    lunch: "",
-    dinner: "",
-  });
-
-  // ✅ 이전 기록 상태 관리
-  const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [showNotificationHistory, setShowNotificationHistory] = useState<boolean>(false);
-  const [showMealHistory, setShowMealHistory] = useState<boolean>(false);
-  const [notificationHistory, setNotificationHistory] = useState<string[]>([]);
-  const [mealHistory, setMealHistory] = useState<string[]>([]);
-
-  // ✅ 공지사항 & 식단표 데이터 불러오기 (백엔드 API 연동)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 🎯 공지사항 및 식단표 데이터를 백엔드에서 가져옴
-        const [notificationRes, mealRes] = await Promise.all([
-          fetch("http://백엔드서버주소/api/admin/notifications"),
-          fetch("http://백엔드서버주소/api/admin/meal-schedule"),
-        ]);
-
-        const [notificationData, mealData] = await Promise.all([notificationRes.json(), mealRes.json()]);
-
-        // ✅ 백엔드 응답 데이터를 상태에 반영
-        if (notificationRes.ok) setNotification(notificationData.notification);
-        if (mealRes.ok) setMealSchedule(mealData);
-      } catch (error) {
-        console.error("데이터 불러오기 오류:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // ✅ 이전 기록 불러오기 (백엔드 API 연동)
-  const fetchHistory = async () => {
-    try {
-      const response = await fetch("http://백엔드서버주소/api/admin/history");
-      const data = await response.json();
-
-      // ✅ 백엔드 응답 데이터를 상태에 반영
-      if (response.ok) {
-        setNotificationHistory(data.notificationHistory);
-        setMealHistory(data.mealHistory);
-      }
-    } catch (error) {
-      console.error("이전 기록 불러오기 오류:", error);
-    }
-  };
-
-  // ✅ 저장 기능 (공지사항 & 식단표 업데이트)
-  const handleSave = async () => {
-    try {
-      const response = await fetch("http://백엔드서버주소/api/admin/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notification, mealSchedule }),
-      });
-
-      if (response.ok) {
-        setShowPopup(true);
-        setTimeout(() => setShowPopup(false), 2000);
-      }
-    } catch (error) {
-      console.error("저장 오류:", error);
-    }
-  };
-
-  // ✅ 로그아웃 기능
-  const handleLogout = () => {
-    router.push("/login");
-  };
-
+  
   return (
     <>
       <Head>
-        <title>스마트미러 - 관리자</title>
+        <title>관리자 페이지</title>
       </Head>
+      <div className={styles.adminContainer}>
+        {/* ✅ 사이드바 (리디자인 적용) */}
+        <aside className={styles.sidebar}>
+          <h2 className={styles.sidebarTitle}>관리자 메뉴</h2>
+          <ul>
+            <li className={styles.menuItem} onClick={() => router.replace("/admin/dashboard")}>📊 대시보드</li>
+            <li className={styles.menuItem} onClick={() => router.push("/admin/users")}>👤 사용자 관리</li>
+            <li className={styles.menuItem} onClick={() => router.push("/admin/notifications")}>📢 공지사항 관리</li>
+            <li className={styles.menuItem} onClick={() => router.push("/admin/meals")}>🍽️ 식단표 관리</li>
+          </ul>
+        </aside>
 
-      <div className={styles.container}>
-        <h1 className={styles.title}>📌 관리자 페이지</h1>
+        {/* ✅ 동적 페이지 렌더링 */}
+        <main className={styles.dashboard}>
+          <header className={styles.header}>
+            <h1>📊 관리자 페이지</h1>
+            <button onClick={() => router.push("/login")} className={styles.logoutButton}>🚪 로그아웃</button>
+          </header>
 
-        {/* ✅ 로그아웃 버튼 */}
-        <button onClick={handleLogout} className={styles.logoutButton}>🚪 로그아웃</button>
+          <div className={styles.dashboardContent}>
+            {/* ✅ 방문자 수 */}
+            <section className={styles.card}>
+              <h2>👥 방문자 수</h2>
+              <p>오늘 방문자: <strong>120명</strong></p>
+              <canvas id="visitorChart"></canvas>
+            </section>
 
-        {/* ✅ 공지사항 수정 */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>공지사항 수정</h2>
-          <textarea
-            value={notification}
-            onChange={(e) => setNotification(e.target.value)}
-            className={styles.textarea}
-          />
-        </section>
+            {/* ✅ 현재 공지사항 */}
+            <section className={styles.card}>
+              <h2>📢 최근 공지사항</h2>
+              <p>현재 공지: "스마트미러 업데이트 예정"</p>
+              <button onClick={() => router.push("/admin/notifications")} className={styles.editButton}>수정하기</button>
+            </section>
 
-        {/* ✅ 식단표 수정 */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>식단표 수정</h2>
-          <div className={styles.mealContainer}>
-            {(["breakfast", "lunch", "dinner"] as const).map((meal) => (
-              <div key={meal} className={styles.mealItem}>
-                <label>{meal === "breakfast" ? "🍚 아침" : meal === "lunch" ? "🍛 점심" : "🍲 저녁"}</label>
-                <input
-                  type="text"
-                  value={mealSchedule[meal]}
-                  onChange={(e) => setMealSchedule((prev) => ({ ...prev, [meal]: e.target.value }))}
-                  className={styles.input}
-                />
-              </div>
-            ))}
+            {/* ✅ 오늘의 식단 */}
+            <section className={styles.card}>
+              <h2>🍽️ 오늘의 식단</h2>
+              <p>아침: 김치찌개 & 밥</p>
+              <p>점심: 돈까스 & 샐러드</p>
+              <p>저녁: 된장찌개 & 생선구이</p>
+              <button onClick={() => router.push("/admin/meals")} className={styles.editButton}>수정하기</button>
+            </section>
           </div>
-        </section>
-
-        {/* ✅ 이전 기록 보기 버튼 */}
-        <div className={styles.buttonContainer}>
-          <button
-            onClick={() => {
-              setShowNotificationHistory(!showNotificationHistory);
-              if (!showNotificationHistory) fetchHistory();
-            }}
-            className={styles.notificationHistoryButton}
-          >
-            {showNotificationHistory ? "🔽 공지사항 기록 닫기" : "📜 공지사항 기록 보기"}
-          </button>
-
-          <button
-            onClick={() => {
-              setShowMealHistory(!showMealHistory);
-              if (!showMealHistory) fetchHistory();
-            }}
-            className={styles.mealHistoryButton}
-          >
-            {showMealHistory ? "🔽 식단표 기록 닫기" : "🍽️ 식단표 기록 보기"}
-          </button>
-        </div>
-
-        {/* ✅ 공지사항 기록 */}
-        {showNotificationHistory && (
-          <div className={styles.historyBox}>
-            <h3>📜 공지사항 기록</h3>
-            <ul>
-              {notificationHistory.length > 0 ? notificationHistory.map((item, index) => (
-                <li key={index}>{item}</li>
-              )) : <li>📌 기록이 없습니다.</li>}
-            </ul>
-          </div>
-        )}
-
-        {/* ✅ 식단표 기록 */}
-        {showMealHistory && (
-          <div className={styles.historyBox}>
-            <h3>🍽️ 식단표 기록</h3>
-            <ul>
-              {mealHistory.length > 0 ? mealHistory.map((item, index) => (
-                <li key={index}>{item}</li>
-              )) : <li>📌 기록이 없습니다.</li>}
-            </ul>
-          </div>
-        )}
-
-        {/* ✅ 저장 버튼 */}
-        <button onClick={handleSave} className={styles.button}>💾 저장</button>
-
-        {/* ✅ 저장 팝업 */}
-        {showPopup && <div className={styles.popup}>✅ 저장되었습니다!</div>}
+        </main>
       </div>
     </>
   );

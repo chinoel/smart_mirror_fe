@@ -1,0 +1,61 @@
+/* 감정 효과 전체 컨테이너 스타일 */
+.emotionEffectContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+/* 감정 테스트 제목 스타일 (h2를 직접 쓰지 않음) */
+.title {
+  color: white;
+  z-index: 2;
+  position: relative;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Three.js 캔버스 크기 고정 */
+.canvasContainer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* 버튼 컨테이너 */
+.testButtons {
+  position: absolute;
+  bottom: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.testButton {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.testButton:hover {
+  background-color: #666;
+}
+
+/* Three.js 캔버스 스타일 적용 */
+:global(canvas) {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
