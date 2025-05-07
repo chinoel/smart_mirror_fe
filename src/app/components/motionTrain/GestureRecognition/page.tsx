@@ -30,33 +30,44 @@ const GestureRecognition = () => {
         });
     };
 
+    const [fps, setFps] = useState(0);
+    let frameCount = 0;
+    let lastTime = performance.now();
+
+    const updateFPS = () => {
+        const now = performance.now();
+        const delta = now - lastTime;
+        frameCount++;
+
+        if (delta >= 1000) {
+            setFps(Math.round((frameCount * 1000) / delta));
+            frameCount = 0;
+            lastTime = now;
+        }
+    };
+
     useEffect(() => {
         const loadModels = async () => {
             setIsLoading(true);
             try {
-                // 1. Handpose 모델 로드
+                // Handpose 모델 로드
                 console.log("Handpose 모델 로딩 시작...");
                 handposeModelRef.current = await handpose.load();
                 console.log("Handpose 모델 로딩 완료!");
 
-                // 2. 제스처 인식 모델 로드
+                // 제스처 인식 모델 로드
                 console.log("제스처 모델 로딩 시작...");
-                const gestureModel = await tf.loadLayersModel('indexeddb://gesture-model');
+                const gestureModel = await tf.loadLayersModel('/swipe-motion/gesture-model.json');
                 setModel(gestureModel);
                 console.log("제스처 모델 로딩 완료!");
 
-                // 3. 라벨 로드
-                console.log("라벨 로딩 시작...");
-                const savedLabels = localStorage.getItem('gestureLabels');
-                if (savedLabels) {
-                    const parsedLabels = JSON.parse(savedLabels);
-                    setLabels(parsedLabels);
-                    console.log("로드된 라벨:", parsedLabels);
-                } else {
-                    throw new Error("저장된 라벨을 찾을 수 없습니다.");
-                }
+                // 라벨 설정
+                const defaultLabels = ["왼쪽", "오른쪽"];
+                setLabels(defaultLabels);
+
             } catch (error: any) {
                 console.error("모델 로딩 중 오류:", error);
+                console.error("상세 에러:", error.message);
                 setError(error.message || "모델 로드에 실패했습니다.");
             } finally {
                 setIsLoading(false);
@@ -72,40 +83,43 @@ const GestureRecognition = () => {
     }, [model, labels]);
 
     const predictGesture = async (landmarks: number[]) => {
-        if (!model || !labels.length) {
-            console.log("예측 불가:", {
-                modelLoaded: !!model,
-                labelsLoaded: labels.length > 0
-            });
-            return;
-        }
+        if (!model || !labels.length) return;
+
+        let input: tf.Tensor2D | null = null;
+        let prediction: tf.Tensor | null = null;
 
         try {
-            const input = tf.tensor2d([landmarks]);
-            const prediction = model.predict(input) as tf.Tensor;
+            input = tf.tensor2d([landmarks]);
+            prediction = model.predict(input) as tf.Tensor;
             const probabilities = await prediction.data();
             const maxProbIndex = probabilities.indexOf(Math.max(...probabilities));
-
             setPrediction(labels[maxProbIndex]);
-
-            input.dispose();
-            prediction.dispose();
         } catch (error) {
             console.error("예측 중 오류:", error);
+        } finally {
+            // 텐서 메모리 해제
+            if (input) input.dispose();
+            if (prediction) prediction.dispose();
         }
     };
 
+    useEffect(() => {
+        return () => {
+            // 컴포넌트 언마운트 시 정리
+            stopDetection();
+            if (model) {
+                model.dispose();
+            }
+        };
+    }, [model]);
+
     const detectLoop = async () => {
         if (!webcamRef.current?.video || !handposeModelRef.current || !detectingRef.current) {
-            console.log("감지 루프 중단:", {
-                webcam: !!webcamRef.current?.video,
-                handpose: !!handposeModelRef.current,
-                detecting: detectingRef.current
-            });
             return;
         }
 
         try {
+            updateFPS();
             const hands = await handposeModelRef.current.estimateHands(webcamRef.current.video);
 
             if (hands.length > 0) {
@@ -113,9 +127,12 @@ const GestureRecognition = () => {
                 await predictGesture(landmarks);
             }
 
-            if (detectingRef.current) {
-                requestAnimationFrame(detectLoop);
-            }
+            // 프레임 제한 추가
+            setTimeout(() => {
+                if (detectingRef.current) {
+                    requestAnimationFrame(detectLoop);
+                }
+            }, 100); // 100ms 딜레이 추가
         } catch (error) {
             console.error("감지 중 오류:", error);
         }
