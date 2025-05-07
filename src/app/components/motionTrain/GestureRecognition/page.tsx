@@ -50,33 +50,36 @@ const GestureRecognition = () => {
         const loadModels = async () => {
             setIsLoading(true);
             try {
-                // Handpose 모델 로드
+                // 1. Handpose 모델 로드
                 console.log("Handpose 모델 로딩 시작...");
                 handposeModelRef.current = await handpose.load();
                 console.log("Handpose 모델 로딩 완료!");
 
-                // 제스처 인식 모델 로드
+                // 2. 제스처 인식 모델 로드
                 console.log("제스처 모델 로딩 시작...");
-                const gestureModel = await tf.loadLayersModel('/swipe-motion/gesture-model.json');
+                const gestureModel = await tf.loadLayersModel('indexeddb://gesture-model');
                 setModel(gestureModel);
                 console.log("제스처 모델 로딩 완료!");
-
-                // 라벨 설정
-                const defaultLabels = ["왼쪽", "오른쪽"];
-                setLabels(defaultLabels);
-
+                
+                // 3. 라벨 로드
+                console.log("라벨 로딩 시작...");
+                const savedLabels = localStorage.getItem('gestureLabels');
+                if (savedLabels) {
+                    const parsedLabels = JSON.parse(savedLabels);
+                    setLabels(parsedLabels);
+                    console.log("로드된 라벨:", parsedLabels);
+                } else {
+                    throw new Error("저장된 라벨을 찾을 수 없습니다.");
+                }
             } catch (error: any) {
                 console.error("모델 로딩 중 오류:", error);
-                console.error("상세 에러:", error.message);
                 setError(error.message || "모델 로드에 실패했습니다.");
             } finally {
                 setIsLoading(false);
             }
         };
-
         loadModels();
     }, []);
-
     // 모델 상태가 변경될 때마다 상태 체크
     useEffect(() => {
         checkModelStatus();
