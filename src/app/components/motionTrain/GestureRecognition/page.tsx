@@ -30,6 +30,22 @@ const GestureRecognition = () => {
         });
     };
 
+    const [fps, setFps] = useState(0);
+    let frameCount = 0;
+    let lastTime = performance.now();
+
+    const updateFPS = () => {
+        const now = performance.now();
+        const delta = now - lastTime;
+        frameCount++;
+
+        if (delta >= 1000) {
+            setFps(Math.round((frameCount * 1000) / delta));
+            frameCount = 0;
+            lastTime = now;
+        }
+    };
+
     useEffect(() => {
         const loadModels = async () => {
             setIsLoading(true);
@@ -44,7 +60,7 @@ const GestureRecognition = () => {
                 const gestureModel = await tf.loadLayersModel('indexeddb://gesture-model');
                 setModel(gestureModel);
                 console.log("제스처 모델 로딩 완료!");
-
+                
                 // 3. 라벨 로드
                 console.log("라벨 로딩 시작...");
                 const savedLabels = localStorage.getItem('gestureLabels');
@@ -62,50 +78,51 @@ const GestureRecognition = () => {
                 setIsLoading(false);
             }
         };
-
         loadModels();
     }, []);
-
     // 모델 상태가 변경될 때마다 상태 체크
     useEffect(() => {
         checkModelStatus();
     }, [model, labels]);
 
     const predictGesture = async (landmarks: number[]) => {
-        if (!model || !labels.length) {
-            console.log("예측 불가:", {
-                modelLoaded: !!model,
-                labelsLoaded: labels.length > 0
-            });
-            return;
-        }
+        if (!model || !labels.length) return;
+
+        let input: tf.Tensor2D | null = null;
+        let prediction: tf.Tensor | null = null;
 
         try {
-            const input = tf.tensor2d([landmarks]);
-            const prediction = model.predict(input) as tf.Tensor;
+            input = tf.tensor2d([landmarks]);
+            prediction = model.predict(input) as tf.Tensor;
             const probabilities = await prediction.data();
             const maxProbIndex = probabilities.indexOf(Math.max(...probabilities));
-
             setPrediction(labels[maxProbIndex]);
-
-            input.dispose();
-            prediction.dispose();
         } catch (error) {
             console.error("예측 중 오류:", error);
+        } finally {
+            // 텐서 메모리 해제
+            if (input) input.dispose();
+            if (prediction) prediction.dispose();
         }
     };
 
+    useEffect(() => {
+        return () => {
+            // 컴포넌트 언마운트 시 정리
+            stopDetection();
+            if (model) {
+                model.dispose();
+            }
+        };
+    }, [model]);
+
     const detectLoop = async () => {
         if (!webcamRef.current?.video || !handposeModelRef.current || !detectingRef.current) {
-            console.log("감지 루프 중단:", {
-                webcam: !!webcamRef.current?.video,
-                handpose: !!handposeModelRef.current,
-                detecting: detectingRef.current
-            });
             return;
         }
 
         try {
+            updateFPS();
             const hands = await handposeModelRef.current.estimateHands(webcamRef.current.video);
 
             if (hands.length > 0) {
@@ -113,9 +130,12 @@ const GestureRecognition = () => {
                 await predictGesture(landmarks);
             }
 
-            if (detectingRef.current) {
-                requestAnimationFrame(detectLoop);
-            }
+            // 프레임 제한 추가
+            setTimeout(() => {
+                if (detectingRef.current) {
+                    requestAnimationFrame(detectLoop);
+                }
+            }, 100); // 100ms 딜레이 추가
         } catch (error) {
             console.error("감지 중 오류:", error);
         }
