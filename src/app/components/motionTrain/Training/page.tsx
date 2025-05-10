@@ -31,16 +31,19 @@ const GestureTraining = () => {
     const [modelFile, setModelFile] = useState<File | null>(null);
     const [weightsFile, setWeightsFile] = useState<File | null>(null);
 
+    const [labelFile, setLabelFile] = useState<File | null>(null);
+
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files) return;
 
-        // .json 파일과 .bin 파일 구분
         Array.from(files).forEach(file => {
-            if (file.name.endsWith('.json')) {
+            if (file.name.endsWith('model.json')) {
                 setModelFile(file);
             } else if (file.name.endsWith('.bin')) {
                 setWeightsFile(file);
+            } else if (file.name.endsWith('labels.json')) {
+                setLabelFile(file);
             }
         });
     };
@@ -59,8 +62,20 @@ const GestureTraining = () => {
             // IndexedDB에 저장
             await model.save('indexeddb://gesture-model');
 
+            // 라벨 파일이 있다면 처리
+            if (labelFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const labels = e.target?.result;
+                    if (typeof labels === 'string') {
+                        localStorage.setItem('gestureLabels', labels);
+                    }
+                };
+                reader.readAsText(labelFile);
+            }
+
             console.log('모델 업로드 완료');
-            alert('모델 업로드가 완료되었습니다.');
+            alert('모델과 라벨 업로드가 완료되었습니다.');
         } catch (error) {
             console.error('모델 업로드 중 오류:', error);
             alert('모델 업로드 중 오류가 발생했습니다.');
@@ -192,8 +207,23 @@ const GestureTraining = () => {
         try {
             const model = await tf.loadLayersModel('indexeddb://gesture-model');
             await model.save('downloads://gesture-model');
+
+            // 라벨 정보도 함께 다운로드
+            const labels = localStorage.getItem('gestureLabels');
+            if (labels) {
+                const blob = new Blob([labels], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'gesture-labels.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
         } catch (error) {
             console.error('모델 다운로드 중 오류:', error);
+            alert('모델 다운로드 중 오류가 발생했습니다.');
         }
     };
 
@@ -350,6 +380,11 @@ const GestureTraining = () => {
                 >
                     모델 업로드
                 </button>
+                <div className="mt-2 text-white">
+                    <p>모델 파일: {modelFile?.name || "선택되지 않음"}</p>
+                    <p>가중치 파일: {weightsFile?.name || "선택되지 않음"}</p>
+                    <p>라벨 파일: {labelFile?.name || "선택되지 않음"}</p>
+                </div>
             </div>
         </div>
     );
