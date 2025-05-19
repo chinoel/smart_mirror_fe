@@ -24,7 +24,7 @@ export default function Login() {
     setMessage(null);
 
     try {
-      // 🎯 백엔드 로그인 API 호출 (팀원이 구현할 부분)
+      // 🎯 백엔드 로그인 API 호출 
       const response = await fetch("http://localhost:8888/users/login", {
         method: "POST",
         headers: {

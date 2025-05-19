@@ -40,7 +40,7 @@ export default function Register() {
 
     try {
       // 🎯 백엔드에서 이메일 중복 확인 API 구현 필요
-      const response = await fetch(`http://백엔드서버주소/api/check-email?email=${email}`, {
+      const response = await fetch(`http://localhost:8888/api/check-email?email=${email}`, {
         method: "GET",
       });
 
@@ -74,7 +74,7 @@ export default function Register() {
 
     try {
       // 🎯 백엔드에서 회원가입 API 구현 필요
-      const response = await fetch("http://백엔드서버주소/api/register", {
+      const response = await fetch("http://localhost:8888/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

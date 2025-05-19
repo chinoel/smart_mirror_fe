@@ -13,7 +13,7 @@ export default function AdminNotifications() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("http://백엔드서버주소/api/admin/notifications");
+        const response = await fetch("http://localhost:8888/api/admin/notifications");
         const data = await response.json();
         setNotifications(data);
       } catch (error) {
@@ -25,23 +25,31 @@ export default function AdminNotifications() {
 
   // ✅ 공지 추가 기능
   const handleAddNotice = async () => {
-    if (!newNotice.trim()) return;
+  if (!newNotice.trim()) return;
 
-    try {
-      const response = await fetch("http://백엔드서버주소/api/admin/notifications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: newNotice }),
-      });
+  try {
+    const token = localStorage.getItem("token"); // ✅ 토큰 가져오기
 
-      if (response.ok) {
-        setNotifications([...notifications, { message: newNotice, date: new Date().toISOString() }]);
-        setNewNotice("");
-      }
-    } catch (error) {
-      console.error("공지 추가 오류:", error);
+    const response = await fetch("http://localhost:8888/api/admin/notifications", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,  // ✅ 토큰 포함
+      },
+      body: JSON.stringify({ message: newNotice }),
+    });
+
+    if (response.ok) {
+      setNotifications([...notifications, { message: newNotice, date: new Date().toISOString() }]);
+      setNewNotice("");
+    } else {
+      console.error("서버 응답 오류:", await response.text());
     }
-  };
+  } catch (error) {
+    console.error("공지 추가 오류:", error);
+  }
+};
+
 
   return (
     <>

@@ -13,7 +13,7 @@ export default function AdminMeals() {
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const response = await fetch("http://백엔드서버주소/api/admin/meals/today");
+        const response = await fetch("http://localhost:8888/api/admin/meals/today");
         const data = await response.json();
         setMeals(data);
       } catch (error) {
@@ -26,7 +26,7 @@ export default function AdminMeals() {
   // ✅ 식단 저장 기능
   const handleSaveMeals = async () => {
     try {
-      const response = await fetch("http://백엔드서버주소/api/admin/meals", {
+      const response = await fetch("http://localhost:8888/api/admin/meals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(meals),
