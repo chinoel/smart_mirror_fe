@@ -12,7 +12,7 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://백엔드서버주소/api/admin/users");
+        const response = await fetch("http://localhost:8888/api/admin/users");
         const data = await response.json();
         setUsers(data);
       } catch (error) {

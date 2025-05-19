@@ -18,9 +18,9 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         const [visitorRes, noticeRes, mealRes] = await Promise.all([
-          fetch("http://백엔드서버주소/api/admin/visitors"),
-          fetch("http://백엔드서버주소/api/admin/notifications/latest"),
-          fetch("http://백엔드서버주소/api/admin/meals/today"),
+          fetch("http://localhost:8888/api/admin/visitors"),
+          fetch("http://localhost:8888/api/admin/notifications/latest"),
+          fetch("http://localhost:8888/api/admin/meals/today"),
         ]);
 
         const [visitorData, noticeData, mealData] = await Promise.all([
