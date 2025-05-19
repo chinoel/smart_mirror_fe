@@ -2,22 +2,25 @@
 
 import Notification from "../components/notification/page";
 import { MirrorProvider } from "../context/MirrorContext";
-import SharedCamera from "../context/SharedCamera";
+import { VideoProvider } from "../context/SharedVideoContext";
+import { TensorFlowProvider } from "../context/TensorFlowContext";
+import GestureRecognition from "./gesturereconitionprops";
 import Mirror from "./mirror";
-import GestureRecognition from "./test";
 
 export default function CollectPage() {
 
     return (
         <div className="p-4">
             <h1>퓨전 테스트</h1>
-            <MirrorProvider>
-                <Notification />
-                <SharedCamera>
-                    <Mirror />
-                    <GestureRecognition />
-                </SharedCamera>
-            </MirrorProvider>
+            <TensorFlowProvider>
+                <VideoProvider>
+                    <MirrorProvider>
+                        <Notification />
+                        <Mirror />
+                        <GestureRecognition />
+                    </MirrorProvider>
+                </VideoProvider>
+            </TensorFlowProvider>
         </div>
     );
 }

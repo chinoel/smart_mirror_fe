@@ -13,26 +13,17 @@ const GestureRecognition = () => {
     const [isDetecting, setIsDetecting] = useState(false);
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isWebcamReady, setIsWebcamReady] = useState(false);
     const detectingRef = useRef(false);
+    const [fps, setFps] = useState(0);
+    let frameCount = 0;
+    let lastTime = performance.now();
 
     const videoConstraints = {
         width: 640,
         height: 480,
         facingMode: "user",
     };
-
-    // 모델 로딩 상태를 확인하는 함수
-    const checkModelStatus = () => {
-        console.log("모델 상태 체크:", {
-            gestureModel: model ? "로드됨" : "로드되지 않음",
-            handposeModel: handposeModelRef.current ? "로드됨" : "로드되지 않음",
-            labels: labels.length > 0 ? "로드됨" : "로드되지 않음"
-        });
-    };
-
-    const [fps, setFps] = useState(0);
-    let frameCount = 0;
-    let lastTime = performance.now();
 
     const updateFPS = () => {
         const now = performance.now();
@@ -46,22 +37,27 @@ const GestureRecognition = () => {
         }
     };
 
+    const checkModelStatus = () => {
+        console.log("모델 상태 체크:", {
+            gestureModel: model ? "로드됨" : "로드되지 않음",
+            handposeModel: handposeModelRef.current ? "로드됨" : "로드되지 않음",
+            labels: labels.length > 0 ? "로드됨" : "로드되지 않음"
+        });
+    };
+
     useEffect(() => {
         const loadModels = async () => {
             setIsLoading(true);
             try {
-                // 1. Handpose 모델 로드
                 console.log("Handpose 모델 로딩 시작...");
                 handposeModelRef.current = await handpose.load();
                 console.log("Handpose 모델 로딩 완료!");
 
-                // 2. 제스처 인식 모델 로드
                 console.log("제스처 모델 로딩 시작...");
                 const gestureModel = await tf.loadLayersModel('indexeddb://gesture-model');
                 setModel(gestureModel);
                 console.log("제스처 모델 로딩 완료!");
-                
-                // 3. 라벨 로드
+
                 console.log("라벨 로딩 시작...");
                 const savedLabels = localStorage.getItem('gestureLabels');
                 if (savedLabels) {
@@ -79,8 +75,15 @@ const GestureRecognition = () => {
             }
         };
         loadModels();
+
+        return () => {
+            stopDetection();
+            if (model) {
+                model.dispose();
+            }
+        };
     }, []);
-    // 모델 상태가 변경될 때마다 상태 체크
+
     useEffect(() => {
         checkModelStatus();
     }, [model, labels]);
@@ -100,62 +103,69 @@ const GestureRecognition = () => {
         } catch (error) {
             console.error("예측 중 오류:", error);
         } finally {
-            // 텐서 메모리 해제
             if (input) input.dispose();
             if (prediction) prediction.dispose();
         }
     };
 
-    useEffect(() => {
-        return () => {
-            // 컴포넌트 언마운트 시 정리
-            stopDetection();
-            if (model) {
-                model.dispose();
-            }
-        };
-    }, [model]);
-
     const detectLoop = async () => {
-        if (!webcamRef.current?.video || !handposeModelRef.current || !detectingRef.current) {
-            return;
-        }
+        if (!detectingRef.current) return;
 
         try {
+            const video = webcamRef.current?.video;
+            if (!video || !handposeModelRef.current ||
+                video.readyState !== 4 ||
+                video.videoWidth === 0 ||
+                video.videoHeight === 0) {
+                requestAnimationFrame(detectLoop);
+                return;
+            }
+
             updateFPS();
-            const hands = await handposeModelRef.current.estimateHands(webcamRef.current.video);
+            const hands = await handposeModelRef.current.estimateHands(video);
 
             if (hands.length > 0) {
                 const landmarks = hands[0].landmarks.flat();
                 await predictGesture(landmarks);
             }
 
-            // 프레임 제한 추가
-            setTimeout(() => {
-                if (detectingRef.current) {
+            if (detectingRef.current) {
+                setTimeout(() => {
                     requestAnimationFrame(detectLoop);
-                }
-            }, 100); // 100ms 딜레이 추가
+                }, 100);
+            }
         } catch (error) {
             console.error("감지 중 오류:", error);
+            if (detectingRef.current) {
+                requestAnimationFrame(detectLoop);
+            }
         }
     };
 
-    const startDetection = () => {
-        console.log("감지 시작 시도");
-        if (!handposeModelRef.current || !model) {
-            console.log("모델이 준비되지 않음:", {
-                handpose: !!handposeModelRef.current,
-                gestureModel: !!model
-            });
-            return;
-        }
-
-        setIsDetecting(true);
-        detectingRef.current = true;
-        detectLoop();
-        console.log("감지 시작됨");
+    const handleWebcamReady = () => {
+        console.log("웹캠 준비 완료");
+        const checkVideo = () => {
+            const video = webcamRef.current?.video;
+            if (video &&
+                video.readyState === 4 &&
+                video.videoWidth !== 0 &&
+                video.videoHeight !== 0) {
+                setIsWebcamReady(true);
+            } else {
+                setTimeout(checkVideo, 100);
+            }
+        };
+        checkVideo();
     };
+
+    useEffect(() => {
+        if (isWebcamReady && model && handposeModelRef.current && !isDetecting) {
+            console.log("모든 준비가 완료되어 감지를 시작합니다.");
+            setIsDetecting(true);
+            detectingRef.current = true;
+            requestAnimationFrame(detectLoop);
+        }
+    }, [isWebcamReady, model]);
 
     const stopDetection = () => {
         console.log("감지 중지");
@@ -180,42 +190,33 @@ const GestureRecognition = () => {
                 <div className="relative">
                     <Webcam
                         ref={webcamRef}
-                        className="rounded-lg"
+                        className="rounded-lg"  // hidden 제거
                         videoConstraints={videoConstraints}
                         style={{
                             width: '640px',
-                            height: '480px'
+                            height: '480px',
+                            opacity: 0,  // 투명도를 0으로 설정
+                            position: 'absolute'  // 다른 요소와 겹치지 않도록
                         }}
                         mirrored={true}
+                        onUserMedia={handleWebcamReady}
                     />
                     {prediction && (
-                        <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded">
+                        <div className="bg-black bg-opacity-50 text-white p-2 rounded">
                             인식된 제스처: {prediction}
                         </div>
                     )}
                 </div>
             )}
 
-            <div className="mt-4">
-                <button
-                    onClick={isDetecting ? stopDetection : startDetection}
-                    className={`px-4 py-2 ${isDetecting
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                        } text-white rounded`}
-                    disabled={isLoading || !model || !handposeModelRef.current}
-                >
-                    {isLoading ? "로딩 중..." : isDetecting ? "인식 중지" : "인식 시작"}
-                </button>
-            </div>
-
             <div className="mt-4 text-white">
                 <h3>상태 정보:</h3>
-                <p>웹캠 준비됨: {webcamRef.current?.video ? "예" : "아니오"}</p>
+                <p>웹캠 준비됨: {isWebcamReady ? "예" : "아니오"}</p>
                 <p>Handpose 모델: {handposeModelRef.current ? "로드됨" : "로드 중"}</p>
                 <p>제스처 모델: {model ? "로드됨" : "로드 중"}</p>
                 <p>등록된 제스처 수: {labels.length}</p>
                 <p>현재 상태: {isLoading ? "로딩 중" : isDetecting ? "감지 중" : "대기 중"}</p>
+                <p>FPS: {fps}</p>
             </div>
         </div>
     );
