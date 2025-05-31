@@ -1,0 +1,5 @@
+# 모든 텍스트 파일은 LF로 통일
+* text=auto
+
+# yarn.lock은 항상 LF 유지
+yarn.lock text eol=lf
