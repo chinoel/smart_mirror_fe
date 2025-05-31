@@ -28,3 +28,56 @@ body {
     font-size: 18px; /* 기본 폰트 사이즈를 증가 */
   }
 }
+
+.slide-left {
+    animation: slideLeft 0.5s ease-in-out;
+}
+
+.slide-right {
+    animation: slideRight 0.5s ease-in-out;
+}
+
+@keyframes slideLeft {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* 페이지 전환 시 이전 페이지가 사라지는 애니메이션 */
+.slide-left-exit {
+    animation: slideLeftExit 0.5s ease-in-out;
+}
+
+.slide-right-exit {
+    animation: slideRightExit 0.5s ease-in-out;
+}
+
+@keyframes slideLeftExit {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes slideRightExit {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
