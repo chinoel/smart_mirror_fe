@@ -23,33 +23,31 @@ export default function AdminNotifications() {
     fetchNotifications();
   }, []);
 
-  // ✅ 공지 추가 기능
   const handleAddNotice = async () => {
-  if (!newNotice.trim()) return;
+    if (!newNotice.trim()) return;
 
-  try {
-    const token = localStorage.getItem("token"); // ✅ 토큰 가져오기
+    try {
+      const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:8888/api/admin/notifications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,  // ✅ 토큰 포함
-      },
-      body: JSON.stringify({ message: newNotice }),
-    });
+      const response = await fetch("http://localhost:8888/api/admin/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message: newNotice }),
+      });
 
-    if (response.ok) {
-      setNotifications([...notifications, { message: newNotice, date: new Date().toISOString() }]);
-      setNewNotice("");
-    } else {
-      console.error("서버 응답 오류:", await response.text());
+      if (response.ok) {
+        setNotifications([...notifications, { message: newNotice, date: new Date().toISOString() }]);
+        setNewNotice("");
+      } else {
+        console.error("서버 응답 오류:", await response.text());
+      }
+    } catch (error) {
+      console.error("공지 추가 오류:", error);
     }
-  } catch (error) {
-    console.error("공지 추가 오류:", error);
-  }
-};
-
+  };
 
   return (
     <>
@@ -67,30 +65,35 @@ export default function AdminNotifications() {
           </ul>
         </aside>
 
-        <main className={styles.dashboard}>
-  <h1>📢 공지사항 관리</h1>
+        <main className={styles.dashboard} style={{ color: "black" }}>
+          <h1 style={{ color: "black" }}>📢 공지사항 관리</h1>
 
-  {/* ✅ 공지 추가 */}
-  <textarea
-    className={styles.textArea}
-    placeholder="새 공지를 입력하세요..."
-    value={newNotice}
-    onChange={(e) => setNewNotice(e.target.value)}
-  />
-  <button className={styles.addButton} onClick={handleAddNotice}>공지 추가</button>
+          {/* 공지 추가 */}
+          <textarea
+            className={styles.textArea}
+            placeholder="새 공지를 입력하세요..."
+            value={newNotice}
+            onChange={(e) => setNewNotice(e.target.value)}
+            style={{ color: "black" }}
+          />
+          <button className={styles.addButton} onClick={handleAddNotice}>공지 추가</button>
 
-  {/* ✅ 기존 공지 목록 */}
-  <ul className={styles.noticeList}>
-    {notifications.length > 0 ? (
-      notifications.map((notice, index) => (
-        <li key={index} className={styles.noticeItem}>{notice.message} - {new Date(notice.date).toLocaleString()}</li>
-      ))
-    ) : (
-      <li className={styles.noticeItem}>등록된 공지사항이 없습니다.</li>
-    )}
-  </ul>
-</main>
 
+          {/* 공지 목록 */}
+          <ul className={styles.noticeList}>
+            {notifications.length > 0 ? (
+              notifications.map((notice, index) => (
+                <li key={index} className={styles.noticeItem} style={{ color: "black" }}>
+                  {notice.message} - {new Date(notice.date).toLocaleString()}
+                </li>
+              ))
+            ) : (
+              <li className={styles.noticeItem} style={{ color: "black" }}>
+                등록된 공지사항이 없습니다.
+              </li>
+            )}
+          </ul>
+        </main>
       </div>
     </>
   );
