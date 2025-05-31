@@ -49,3 +49,20 @@
     transform: translateY(-20px);
     pointer-events: none;
   }
+
+  /* 공지 추가 버튼 스타일 */
+.addButton {
+  background-color: #1E293B; /* 어두운 네이비 톤 */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.addButton:hover {
+  background-color: #334155; /* hover 시 더 밝은 색 */
+}
