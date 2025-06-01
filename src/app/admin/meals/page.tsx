@@ -62,13 +62,15 @@ export default function AdminMeals() {
           </ul>
         </aside>
 
-        <main className={styles.dashboard}>
-          <h1>🍽️ 식단표 관리</h1>
+        <main className={styles.dashboard} style={{ color: "black" }}>
+          <h1 style={{ color: "black" }}>🍽️ 식단표 관리</h1>
 
           {/* ✅ 식단 입력 */}
           {["breakfast", "lunch", "dinner"].map((meal) => (
             <div key={meal} className={styles.mealItem}>
-              <label>{meal === "breakfast" ? "🍚 아침" : meal === "lunch" ? "🍛 점심" : "🍲 저녁"}</label>
+              <label style={{ color: "black" }}>
+                {meal === "breakfast" ? "🍚 아침" : meal === "lunch" ? "🍛 점심" : "🍲 저녁"}
+              </label>
               <input
                 type="text"
                 value={meals[meal]}
